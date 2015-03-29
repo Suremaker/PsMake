@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>psmake</id>
+    <version>3.0.0.0</version>
+	<title>PSMake</title>
+    <authors>Wojciech Kotlarski</authors>
+    <owners>Wojciech Kotlarski</owners>
+    <licenseUrl>http://opensource.org/licenses/BSD-2-Clause</licenseUrl>
+    <projectUrl>https://github.com/Suremaker/PsMake</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+	<copyright>Copyright © Wojciech Kotlarski 2015</copyright>
+	<tags>powershell make build CI</tags>
+    <language>en-US</language>
+    <description>A PowerShell based tool which controls a software project build process.</description>
+	<releaseNotes></releaseNotes>
+  </metadata>
+  <files>
+    <file src="**\*" target="." exclude="**\*.nuspec"/>
+  </files>
+</package>
+
