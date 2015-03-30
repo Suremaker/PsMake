@@ -142,27 +142,60 @@ function private:BuildContext()
 		Add-Member -InputObject $object -MemberType NoteProperty -Name $name -Value ''
 		$object.$name = $value
 	}
+
+    function LocateNuGetExe()
+    {
+        if ($NuGetExe) { return $NuGetExe }
+        if (Test-Path '.nuget\NuGet.exe') { return '.nuget\NuGet.exe' }
+        return 'NuGet.exe'
+    }
+
+    function LocateNuGetConfig()
+    {
+        if ($NuGetConfig) { return $NuGetConfig }
+        if (Test-Path '.nuget\NuGet.Config') { return '.nuget\NuGet.Config' }
+        return $null
+    }
+
+    function ConstructNuGetArgs()
+    {
+        $args = @{}
+        if ($NugetRepositoryUrl) { $args.Add('Source',$NugetRepositoryUrl) }
+        $cfg = LocateNuGetConfig
+        if($cfg) {$args.Add('ConfigFile',$cfg) }
+        return $args
+    }
+
 	$object = New-Object PSObject
 
-    $AdditionalParams
     if($AdditionalParams)
 	{
         $AdditionalParams | % { $p=$_ -split ':', 2; AddMember $object $p[0] $(if($p.Length -eq 2) { $p[1] } else { $true })}
     }
 
-    $object
+    AddMember $object 'Target' $Target
+    AddMember $object 'AnsiConsole' $AnsiConsole
+    AddMember $object 'MakeDirectory' $MakeDirectory
+    AddMember $object 'NuGetExe' $(LocateNuGetExe)
+    AddMember $object 'NuGetArgs' $(ConstructNuGetArgs)
+
+    # Hide all parameters
+    $PSBoundParameters.GetEnumerator() | %{ set-variable -name $_.Key -Option private -ErrorAction SilentlyContinue}
+    return $object
 }
 
+function private:List-AvailableModules()
+{
+    & $Context.NuGetExe list psmake.mod- @($Context.NuGetArgs) | Write-Output
+}
 
 try
 {
 	$ErrorActionPreference = 'Stop'
-	# Hide all parameters
 	if($AnsiConsole) {. $PSScriptRoot\psmake.ansi.ps1}
-    BuildContext
-    $PSBoundParameters.GetEnumerator() | %{ set-variable -name $_.Key -Option private -ErrorAction SilentlyContinue}
+    $Context = BuildContext
 
-	if ($ListAvailableModules) { Write-Host "Listing available modules..." }
+	if ($ListAvailableModules) { List-AvailableModules }
 	elseif ($ListModules) { Write-Host "Listing modules..." }
 	elseif ($AddModule) { Write-Host "Adding module $ModuleName=$ModuleVersion..." }
 	elseif ($UpdateAllModules) { Write-Host "Updating modules..." }
