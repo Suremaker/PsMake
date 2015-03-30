@@ -76,7 +76,7 @@ param (
 	[switch] $GetVersion,
 	
 	[Parameter(Mandatory=$true, ParameterSetName="Scaffold")]
-	[ValidateSet('build-test')]
+	[ValidateSet('empty')]
     # Generates a scaffold psmake setup.
 	[string] $Scaffold,
 	
@@ -159,10 +159,10 @@ function private:BuildContext()
 
     function ConstructNuGetArgs()
     {
-        $args = @{}
-        if ($NugetRepositoryUrl) { $args.Add('Source',$NugetRepositoryUrl) }
+        $args = @()
+        if ($NugetRepositoryUrl) { $args+="-Source"; $args+=$NugetRepositoryUrl; }
         $cfg = LocateNuGetConfig
-        if($cfg) {$args.Add('ConfigFile',$cfg) }
+        if($cfg) { $args+="-ConfigFile"; $args+=$cfg; }
         return $args
     }
 
@@ -178,29 +178,32 @@ function private:BuildContext()
     AddMember $object 'MakeDirectory' $MakeDirectory
     AddMember $object 'NuGetExe' $(LocateNuGetExe)
     AddMember $object 'NuGetArgs' $(ConstructNuGetArgs)
+    AddMember $object 'NugetRepositoryUrl' $NugetRepositoryUrl
+    AddMember $object 'NuGetConfig' $(LocateNuGetConfig)
 
     # Hide all parameters
     $PSBoundParameters.GetEnumerator() | %{ set-variable -name $_.Key -Option private -ErrorAction SilentlyContinue}
     return $object
 }
 
-function private:List-AvailableModules()
+function private:Get-Version()
 {
-    & $Context.NuGetExe list psmake.mod- @($Context.NuGetArgs) | Write-Output
+    return "3.0.0.0"
 }
 
 try
 {
 	$ErrorActionPreference = 'Stop'
 	if($AnsiConsole) {. $PSScriptRoot\psmake.ansi.ps1}
+    . $PSScriptRoot\psmake.core.ps1
     $Context = BuildContext
 
-	if ($ListAvailableModules) { List-AvailableModules }
-	elseif ($ListModules) { Write-Host "Listing modules..." }
-	elseif ($AddModule) { Write-Host "Adding module $ModuleName=$ModuleVersion..." }
-	elseif ($UpdateAllModules) { Write-Host "Updating modules..." }
-	elseif ($GetVersion) { Write-Output "3.0.0.0" }
-	elseif ($Scaffold) { Write-Host "Scaffolding..." }
+	if ($ListAvailableModules) { . $PSScriptRoot\psmake.modules.ps1; List-AvailableModules; }
+	elseif ($ListModules) { . $PSScriptRoot\psmake.modules.ps1; List-Modules; }
+	elseif ($AddModule) { . $PSScriptRoot\psmake.modules.ps1; Add-Module $ModuleName $ModuleVersion; }
+	elseif ($UpdateAllModules) { . $PSScriptRoot\psmake.modules.ps1; Update-Modules; }
+	elseif ($GetVersion) { Get-Version }
+	elseif ($Scaffold) { . $PSScriptRoot\psmake.scaffold.ps1; Scaffold-Project $scaffold $(Get-Version); }
 	else { Write-Host "Make..." }
 }
 catch [Exception]

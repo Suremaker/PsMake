@@ -1,0 +1,104 @@
+<#
+.SYNOPSIS 
+Calls external program, and throws an exception if operation is unsuccessful.
+
+.DESCRIPTION
+Calls external program, and throws an exception if operation is unsuccessful.
+
+The command and arguments are printed with Write-Host before execution.
+The command output is printed with Write-Host on console.
+#>
+function Call-Program (
+  [parameter(Position=0)]
+  # Command to execute.
+  $command, 
+
+  [parameter(Position=1, ValueFromRemainingArguments=$true)] 
+  # Command arguments.
+  $args) 
+{
+	Write-Host $command $args -ForegroundColor "Gray"
+	& $command $args | Write-Host -ForegroundColor "Magenta"
+	if (-not $?) { throw "A program execution was not successful (Exit code: $LASTEXITCODE)." }
+}
+
+set-alias call Call-Program
+
+<#
+.SYNOPSIS 
+Prints header in green color.
+
+.DESCRIPTION
+Prints header in green color, in format:
+
+------------------------------------------------------------
+- Header
+------------------------------------------------------------
+#>
+function Write-Header(
+# Header text
+$header,
+# Header border style. '-' if not specified 
+$style="-")
+{
+	Write-Host
+	Write-Host "$($style * 60)" -foregroundcolor "DarkGreen"
+	Write-Host "$style $header" -foregroundcolor "Green"
+	Write-Host "$($style * 60)" -foregroundcolor "DarkGreen"
+	Write-Host
+}
+
+<#
+.SYNOPSIS 
+Prints status in cyan color.
+
+.DESCRIPTION
+Prints status in cyan color in format:
+
+- Status
+------------------------------------------------------------
+#>
+function Write-Status(
+# Status text
+$text,
+# Status border style. '-' if not specified 
+$style="-")
+{
+	Write-Host
+	Write-Host "$style $text" -foregroundcolor "Cyan"
+	Write-Host "$($style * 60)" -foregroundcolor "DarkCyan"
+	Write-Host
+}
+
+<#
+.SYNOPSIS 
+Fetches NuGet package of specified name and version.
+
+.DESCRIPTION
+Fetches NuGet package of specified name and version.
+Function returns path to fetched package.
+#>
+function Fetch-Package(
+# Package name to fetch
+$name,
+# Package version to fetch 
+$version)
+{
+	Write-Host "Fetching $name ver. $version..."
+	if (!$Context.MakeDirectory) {$packageDir='packages'}
+	else {$packageDir="$($Context.MakeDirectory)\packages"}
+	
+    $nuArgs=$Context.NuGetArgs
+	call $Context.NugetExe install $name -Version $version -OutputDirectory "$packageDir" -Verbosity detailed @nuArgs
+	return ".\$packageDir\$name.$version"
+}
+
+function Create-Object([hashtable] $hash)
+{
+    $object = New-Object PSObject
+    $hash.GetEnumerator() | % { 
+        Add-Member -InputObject $object -MemberType NoteProperty -Name $_.Key -Value ""
+        $object.$($_.Key) = $_.Value
+    }
+    return $object
+}
