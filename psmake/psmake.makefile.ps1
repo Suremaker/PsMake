@@ -6,7 +6,7 @@ function Define-Step($name, $body, $target)
 	Add-Member -InputObject $object -MemberType NoteProperty -Name Body -Value ""
 	 
 	$object.Name = $name
-	$object.Envs=$target -split ","
+	$object.Target=$target -split ","
 	$object.Body=$body
 
 	Write-Output $object

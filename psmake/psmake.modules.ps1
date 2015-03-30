@@ -22,7 +22,7 @@ function Fetch-Module ($name,$version)
 
 function Fetch-Modules()
 {
-    return $(Read-Modules).GetEnumerable() | %{ return Fetch-Module $_.Key $_.Value }
+    return $(Read-Modules).GetEnumerator() | %{ return Fetch-Module $_.Key $_.Value }
 }
 
 function List-Modules()
@@ -68,11 +68,11 @@ function Is-VersionHigher([string]$ver1, [string]$ver2)
     $v1 = $ver1 -split "\."
     $v2 = $ver2 -split "\."
 
-    for($i=0; $i -le $v1.Length; $i++)
+    for($i=0; $i -lt $v1.Length; $i++)
     {
         [int]$i1 = $v1[$i]
         [int]$i2 = 0
-        if ($i -le $v2.Length) { [int]$i2 = $v2[$i] }
+        if ($i -lt $v2.Length) { [int]$i2 = $v2[$i] }
         if ($i1 -gt $i2) { return $true; }
     }
     return $false;

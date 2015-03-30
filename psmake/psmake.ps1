@@ -191,6 +191,40 @@ function private:Get-Version()
     return "3.0.0.0"
 }
 
+function private:Load-MakeFile()
+{
+    . $PSScriptRoot\psmake.makefile.ps1;
+
+    $path = "$($Context.MakeDirectory)\Makefile.ps1"
+	Write-Header "Loading $path..."
+	if (!(Test-Path $path))
+	{
+		Write-Error "$path does not exist, aborting..."
+	}
+	[object[]]$steps =  & $path | Where-Object { $_.Target -contains $Context.Target }
+    
+	for($i=0;$i -lt $steps.Length;$i++) { Write-Host "$($i+1). $($steps[$i].Name)" }
+	return $steps
+
+}
+
+function private:Load-Modules()
+{
+	. $PSScriptRoot\psmake.modules.ps1
+	return Fetch-Modules
+}
+
+function private:Execute-Steps([array]$steps)
+{
+	Write-Header "Executing steps..."
+	for($i=0;$i -lt $steps.Length;$i++)
+	{
+		Write-Header -style "*" -header "$($i+1)/$($steps.Length): $($steps[$i].Name)..."
+		& ($steps[$i].Body) 
+		if (-not $?) { throw 'Last step terminated with error...' }
+	}
+}
+
 try
 {
 	$ErrorActionPreference = 'Stop'
@@ -204,11 +238,19 @@ try
 	elseif ($UpdateAllModules) { . $PSScriptRoot\psmake.modules.ps1; Update-Modules; }
 	elseif ($GetVersion) { Get-Version }
 	elseif ($Scaffold) { . $PSScriptRoot\psmake.scaffold.ps1; Scaffold-Project $scaffold $(Get-Version); }
-	else { Write-Host "Make..." }
+	else
+    {
+        $steps = Load-MakeFile
+        $modules = Load-Modules
+        Execute-Steps $steps
+
+        Write-Host -ForegroundColor 'Green' "Make finished :)"    
+    }
 }
 catch [Exception]
 {
 	$_.Exception | format-list -force | Out-String | Write-Host -ForegroundColor 'DarkRed'
+    Write-Host -ForegroundColor 'Red' "Make failed :("
 	throw
 }
 finally
