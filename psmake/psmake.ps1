@@ -210,6 +210,7 @@ function private:Load-MakeFile()
 
 function private:Load-Modules()
 {
+	Write-Header "Loading modules"
 	. $PSScriptRoot\psmake.modules.ps1
 	return Fetch-Modules
 }
