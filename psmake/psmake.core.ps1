@@ -9,13 +9,13 @@ The command and arguments are printed with Write-Host before execution.
 The command output is printed with Write-Host on console.
 #>
 function Call-Program (
-  [parameter(Position=0)]
-  # Command to execute.
-  $command, 
+    [parameter(Position=0)]
+    # Command to execute.
+    $command, 
 
-  [parameter(Position=1, ValueFromRemainingArguments=$true)] 
-  # Command arguments.
-  $args) 
+    [parameter(Position=1, ValueFromRemainingArguments=$true)] 
+    # Command arguments.
+    $args) 
 {
 	Write-Host $command $args -ForegroundColor "Gray"
 	& $command $args | Write-Host -ForegroundColor "Magenta"
@@ -36,10 +36,10 @@ Prints header in green color, in format:
 ------------------------------------------------------------
 #>
 function Write-Header(
-# Header text
-$header,
-# Header border style. '-' if not specified 
-$style="-")
+    # Header text
+    $header,
+    # Header border style. '-' if not specified 
+    $style="-")
 {
 	Write-Host
 	Write-Host "$($style * 60)" -foregroundcolor "DarkGreen"
@@ -59,10 +59,10 @@ Prints status in cyan color in format:
 ------------------------------------------------------------
 #>
 function Write-Status(
-# Status text
-$text,
-# Status border style. '-' if not specified 
-$style="-")
+    # Status text
+    $text,
+    # Status border style. '-' if not specified 
+    $style="-")
 {
 	Write-Host
 	Write-Host "$style $text" -foregroundcolor "Cyan"
@@ -79,10 +79,10 @@ Fetches NuGet package of specified name and version.
 Function returns path to fetched package.
 #>
 function Fetch-Package(
-# Package name to fetch
-$name,
-# Package version to fetch 
-$version)
+    # Package name to fetch
+    $name,
+    # Package version to fetch 
+    $version)
 {
 	Write-Host "Fetching $name ver. $version..."
 	if (!$Context.MakeDirectory) {$packageDir='packages'}
@@ -93,6 +93,10 @@ $version)
 	return ".\$packageDir\$name.$version"
 }
 
+<# 
+.SYNOPSIS
+Creates object with properties defined in $hash parameter
+#>
 function Create-Object([hashtable] $hash)
 {
     $object = New-Object PSObject
@@ -103,9 +107,18 @@ function Create-Object([hashtable] $hash)
     return $object
 }
 
+<# 
+.SYNOPSIS
+Provides path to module specified in $moduleName.
+
+.EXAMPLE
+PS> . (Require-Module 'psmake.mod.my-module')
+
+Loads 'psmake.mod.my-module' module, making all it's methods available in current scope.
+#>
 function Require-Module([string] $moduleName)
 {
-	if(!$Modules.Contains($moduleName)) { Write-Error "Module $moduleName is not added. Please add it first with psmake.ps1 -AddModule."}
+	if(!$Modules.Contains($moduleName)) { throw "Module $moduleName is not added. Please add it first with psmake.ps1 -AddModule."}
 	return $Modules.Get_Item($moduleName).File
 
 }
