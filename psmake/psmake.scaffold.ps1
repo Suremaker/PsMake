@@ -12,7 +12,8 @@ function Scaffold-Empty($psmakeVersion)
 
     Write-Host "Creating Makefile.ps1..."
     $file = "$($Context.MakeDirectory)\Makefile.ps1"
-    Write-Output "Define-Step -Name 'Step one' -Target 'build,deploy' -Body { echo 'Step one' }" | Out-File $file
+    Write-Output "Define-Step -Name 'Step one' -Target 'build' -Body { echo 'Greetings from step one' }" | Out-File $file
+    Write-Output "Define-Step -Name 'Step two' -Target 'build,deploy' -Body { echo 'Greetings from step two' }" | Out-File $file -append
 }
 
 function Scaffold-Project($type, $psmakeVersion)
