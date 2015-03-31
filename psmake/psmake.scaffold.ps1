@@ -14,6 +14,9 @@ function Scaffold-Empty($psmakeVersion)
     $file = "$($Context.MakeDirectory)\Makefile.ps1"
     Write-Output "Define-Step -Name 'Step one' -Target 'build' -Body { echo 'Greetings from step one' }" | Out-File $file
     Write-Output "Define-Step -Name 'Step two' -Target 'build,deploy' -Body { echo 'Greetings from step two' }" | Out-File $file -append
+
+	$file = "$($Context.MakeDirectory)\Defaults.ps1"
+	Write-Output "Write-Output @{'NugetRepositoryUrl'='$($Context.NugetRepositoryUrl)';}" | Out-File $file
 }
 
 function Scaffold-Project($type, $psmakeVersion)
