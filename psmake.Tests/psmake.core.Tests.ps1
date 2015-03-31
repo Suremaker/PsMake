@@ -7,7 +7,9 @@ Describe "Call-Program" {
         
     It "Calls specified command with parameters" {
         Call-Program Test 'a' 2
-        Get-Content 'tmp.txt' | Should Match "a 2"
+        $c = Get-Content 'tmp.txt' 
+        remove-item 'tmp.txt'
+        $c | Should Match "a 2"
     }
 
     It "Reports error if command exit with error" {
@@ -51,5 +53,31 @@ Describe "Require-Module" {
         {
             $_.Exception.Message | Should Be 'Module Other is not added. Please add it first with psmake.ps1 -AddModule.'
         }
+    }
+}
+
+Describe "Make-ScriptBlock" {
+    $Context = Create-Object @{Prop1='ABC'}
+    $Modules = @{'psmake.core'=Create-Object @{File="$here\$sut"}}
+
+    It "Should create script-block having access to all core features" {
+        $block = Make-ScriptBlock "Write-Output (Create-Object @{Ctx=`$Context; Md=`$Modules})" $false
+        $result = & $block
+        $result.Ctx | Should be $Context
+        $result.Md | Should be $Modules
+    }
+
+    It "Should create script-block having access to all core features if called externally" {
+        $block = Make-ScriptBlock "return (Create-Object @{Ctx=`$Context; Md=`$Modules})"
+
+        $job = start-job -scriptblock $block 
+        $result = receive-job $job -Wait
+
+        $result.Ctx | Should not be $null
+        $result.Ctx.Prop1 | Should be $Context.Prop1
+        $result.Md | Should not be $null
+        $result.Md.Contains('psmake.core') | Should be $true
+        $result.Md.Get_Item('psmake.core') | Should not be $null
+        $result.Md.Get_Item('psmake.core').File | Should be $Modules.Get_Item('psmake.core').File
     }
 }

@@ -125,9 +125,17 @@ function Require-Module([string] $moduleName)
 
 set-alias require Require-Module
 
-function Make-ScriptBlock($code)
-{
-	$core = Use-Module 'psmake.core'
-	$scriptBlock = { $Context=$using:Context; $Modules=$using:Modules; . $core; & $code;}.GetNewClosure()
-	return $scriptBlock
+<#
+.SYNOPSIS
+
+Makes a script-block for remote or local execution, that would allow to access all psmake core methods and $Context variable.
+#>
+function Make-ScriptBlock([string]$code, [boolean]$remote=$true)
+{	
+    if ($remote) 
+    { 
+        [string]$core = require 'psmake.core'
+        $code = "`$Context=`$using:Context; `$Modules=`$using:Modules; . $core; $code"
+    }
+	return [scriptblock]::Create($code)
 }
