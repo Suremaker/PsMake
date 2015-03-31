@@ -102,3 +102,16 @@ function Create-Object([hashtable] $hash)
     }
     return $object
 }
+
+function Use-Module([string] $moduleName)
+{
+	if(!$Modules.Contains($moduleName)) { Write-Error "Module $moduleName is not added. Please add it first with psmake.ps1 -AddModule."}
+	return $Modules.Get_Item($moduleName).File
+}
+
+function Make-ScriptBlock($code)
+{
+	$core = Use-Module 'psmake.core'
+	$scriptBlock = { $Context=$using:Context; $Modules=$using:Modules; . $core; & $code;}.GetNewClosure()
+	return $scriptBlock
+}

@@ -200,7 +200,6 @@ function private:Build-Context()
 	Add-Property $object 'NuGetConfig' $defaults $NuGetConfig $(Locate-NuGetConfig)
 	Add-PropertyValue $object 'NuGetArgs' $(Construct-NuGetArgs $object)
 
-
 	# Hide all parameters
 	$PSBoundParameters.GetEnumerator() | %{ set-variable -name $_.Key -Option private -ErrorAction SilentlyContinue}
 	return $object
@@ -228,11 +227,16 @@ function private:Load-MakeFile()
 
 }
 
-function private:Load-Modules()
+function private:Load-Modules($version)
 {
 	Write-Header "Loading modules"
 	. $PSScriptRoot\psmake.modules.ps1
-	return Fetch-Modules
+	
+	$core = Create-Object @{Name='psmake.core'; File="$PSScriptRoot\psmake.core.ps1"; Version=$version}
+
+	$modules = @{ $core.Name=$core }
+	Fetch-Modules | %{ $modules.Add($_.Name, $_) }
+	return $modules
 }
 
 function private:Load-Environment()
@@ -272,8 +276,8 @@ try
 	elseif ($Scaffold) { . $PSScriptRoot\psmake.scaffold.ps1; Scaffold-Project $scaffold $(Get-Version); }
 	else
 	{
-		$steps = Load-MakeFile
-		$modules = Load-Modules
+		$private:steps = Load-MakeFile
+		$Modules = Load-Modules $(Get-Version)
 		Load-Environment | foreach { Write-Host "Loading $_"; . $_ $Environment; }
 
 		Execute-Steps $steps
