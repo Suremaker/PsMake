@@ -43,7 +43,7 @@ function Add-Module([string]$name,[string]$version)
 {
     Write-Host "Adding module $name=$version..."
 
-    if(!($name.StartsWith('psmake.mod-'))) { Write-Error "Invalid module name $name. A proper module name has to start with: psmake.mod-"}
+    if(!($name.StartsWith('psmake.mod.'))) { Write-Error "Invalid module name $name. A proper module name has to start with: psmake.mod."}
     [hashtable]$modules = Read-Modules
     if($modules.ContainsKey($name)) { Write-Error "Module $name is already added." }
     Fetch-Module $name $version | Out-Null
@@ -56,7 +56,7 @@ function List-AvailableModules()
 {
     Write-Host "Listing available modules..."
     $args = $Context.NuGetArgs
-    $result = & $Context.NuGetExe list psmake.mod- @args
+    $result = & $Context.NuGetExe list psmake.mod. @args
 
     $modules = @{}
     $result | % { $p = $_ -split ' '; $modules.Add($p[0],$p[1]); }
