@@ -1,2 +1,4 @@
 *.nupkg
 temp
+libs
+report.xml

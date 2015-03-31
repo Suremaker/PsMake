@@ -103,11 +103,14 @@ function Create-Object([hashtable] $hash)
     return $object
 }
 
-function Use-Module([string] $moduleName)
+function Require-Module([string] $moduleName)
 {
 	if(!$Modules.Contains($moduleName)) { Write-Error "Module $moduleName is not added. Please add it first with psmake.ps1 -AddModule."}
 	return $Modules.Get_Item($moduleName).File
+
 }
+
+set-alias require Require-Module
 
 function Make-ScriptBlock($code)
 {
