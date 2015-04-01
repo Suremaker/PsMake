@@ -278,7 +278,7 @@ try
 	{
 		$private:steps = Load-MakeFile
 		$Modules = Load-Modules $(Get-Version)
-		Load-Environment | foreach { Write-Host "Loading $_"; . $_ $Environment; }
+		Load-Environment | foreach { Write-Host "Loading $_"; . $_ $($Context.Target); }
 
 		Execute-Steps $steps
 

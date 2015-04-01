@@ -8,7 +8,7 @@ function Scaffold-Empty($psmakeVersion)
     $cmd = "$($Context.NuGetExe) install psmake -Version $psmakeVersion -OutputDirectory $($Context.MakeDirectory)\psmake -Verbosity detailed $nuArgs"  
     $file = "$($Context.MakeDirectory)\make.ps1"
     Write-Output "$cmd" | Out-File $file
-    Write-Output "$($Context.MakeDirectory)\psmake\psmake.$psmakeVersion\psmake.ps1 `@args" | Out-File $file -append
+    Write-Output "$($Context.MakeDirectory)\psmake\psmake.$psmakeVersion\psmake.ps1 -md $($Context.MakeDirectory) `@args" | Out-File $file -append
 
     Write-Host "Creating Makefile.ps1..."
     $file = "$($Context.MakeDirectory)\Makefile.ps1"
