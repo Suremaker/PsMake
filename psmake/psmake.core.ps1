@@ -135,7 +135,10 @@ function Make-ScriptBlock([string]$code, [boolean]$remote=$true)
     if ($remote) 
     { 
         [string]$core = require 'psmake.core'
-        $code = "`$Context=`$using:Context; `$Modules=`$using:Modules; . $core; $code"
+		$envPath = "$($Context.MakeDirectory)\Environment.ps1"
+		$env=""
+		if(Test-Path $envPath) { $env=" . $envPath $($Context.Target);"}
+        $code = "`$Context=`$using:Context; `$Modules=`$using:Modules; . $core;$env $code"
     }
 	return [scriptblock]::Create($code)
 }
