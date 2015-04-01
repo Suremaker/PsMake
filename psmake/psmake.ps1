@@ -282,6 +282,7 @@ try
 catch [Exception]
 {
 	$_.Exception | format-list -force | Out-String | Write-Host -ForegroundColor 'DarkRed'
+	$_.InvocationInfo |Format-List | Out-String | Write-Host -ForegroundColor 'DarkRed'
 	Write-Host -ForegroundColor 'Red' "Make failed :("
 	throw
 }
