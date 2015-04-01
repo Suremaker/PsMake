@@ -1,4 +1,5 @@
 *.nupkg
+!*.Tests/**/*.nupkg
 temp
 libs
 report.xml

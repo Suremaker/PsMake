@@ -75,6 +75,20 @@ param (
 	# Prints psmake version.
 	[switch] $GetVersion,
 	
+	[Parameter(Mandatory=$true,ParameterSetName="Make")]
+	[Alias('t')]
+	[ValidateNotNullOrEmpty()]
+	# Target to make. All steps annotated with this target would be made.
+	[string] $Target,
+
+	[Parameter(ParameterSetName="Make")]
+	[Alias('ap')]
+	# Additional make parameters that would be available for make steps via $Context variable.
+	# Expected format: 
+	#	-AdditionalParams key1:value1,key2,key3:"abc,def"
+	# It will result in $Context.key1 = value1, $Context.key2 = $true, $Context.key3 = "abc,def"
+	[string[]] $AdditionalParams,
+	
 	[Parameter(Mandatory=$true, ParameterSetName="Scaffold")]
 	[ValidateSet('empty')]
 	# Generates a scaffold psmake setup.
@@ -86,12 +100,12 @@ param (
 	# Module name to add.
 	[string] $ModuleName,
 
-	[Parameter(ParameterSetName="AddModule")]
+	[Parameter(Mandatory=$true, ParameterSetName="AddModule")]
 	[Alias('mv','Version')]
-	[AllowNull()]
+	[ValidateNotNullOrEmpty()]
 	[ValidatePattern("^[0-9]+(\.[0-9]+){0,3}$")]
-	# Module version to add. If not specified, the newest one would be added.
-	[string] $ModuleVersion = $null,
+	# Module version to add.
+	[string] $ModuleVersion,
 
 	[Parameter()]
 	[Alias('md')]
@@ -117,21 +131,7 @@ param (
 	[Parameter()]
 	[Alias('ansi','ac')]
 	# Makes Write-Host to write ANSI escaped colors - use only if script is running on terminal supporting ANSI escape sequences.
-	[switch] $AnsiConsole,
-	
-	[Parameter(Mandatory=$true,ParameterSetName="Make")]
-	[Alias('t')]
-	[ValidateNotNullOrEmpty()]
-	# Target to make. All steps annotated with this target would be made.
-	[string] $Target,
-
-	[Parameter(ParameterSetName="Make")]
-	[Alias('ap')]
-	# Additional make parameters that would be available for make steps via $Context variable.
-	# Expected format: 
-	#	-AdditionalParams key1:value1,key2,key3:"abc,def"
-	# It will result in $Context.key1 = value1, $Context.key2 = $true, $Context.key3 = "abc,def"
-	[string[]] $AdditionalParams
+	[switch] $AnsiConsole
 )
 
 function private:Build-Context()
@@ -139,14 +139,9 @@ function private:Build-Context()
 	function Load-Defaults()
 	{
 		$path = "$MakeDirectory\Defaults.ps1"
-		Write-Header "Loading $path..."
 
-		if (!(Test-Path $path)) 
-		{ 
-			Write-Host "$path does not exist, skipping..."
-			return @{}
-		}
-		return & $path
+		if (Test-Path $path) { return & $path }
+		return @{}		
 	}
 
 	function Add-PropertyValue($object, $name, $value)

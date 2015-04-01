@@ -90,7 +90,7 @@ function Fetch-Package(
 	
     $nuArgs=$Context.NuGetArgs
 	call $Context.NugetExe install $name -Version $version -OutputDirectory "$packageDir" -Verbosity detailed @nuArgs
-	return ".\$packageDir\$name.$version"
+	return "$packageDir\$name.$version"
 }
 
 <# 
