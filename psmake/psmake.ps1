@@ -11,7 +11,7 @@ C:\Project> .\psmake.ps1 -Target BUILD
 Makes all steps associated with BUILD target.
 
 .EXAMPLE
-C:\Project> .\psmake.ps1 -MakeDirectory make -Target BUILD -NugetRepositoryUrl "C:\LocalRepo;https://www.nuget.org/api/v2/" -NuGetExe C:\NuGet\NuGet.exe -NuGetConfig C:\NuGet\NuGet.Config -AnsiConsole -AdditionalParams packageVersion:5.2.2.7,requiredCoverage:85
+C:\Project> .\psmake.ps1 -MakeDirectory make -Target BUILD -NuGetSource "C:\LocalRepo;https://www.nuget.org/api/v2/" -NuGetExe C:\NuGet\NuGet.exe -NuGetConfig C:\NuGet\NuGet.Config -AnsiConsole -AdditionalParams packageVersion:5.2.2.7,requiredCoverage:85
 
 Locates Makefile.ps1 in 'make' directory and makes all steps associated with BUILD target.
 Uses NuGet exe and config file from C:\NuGet directory for fetching packages from C:\LocalRepo and/or https://www.nuget.org/api/v2/.
@@ -100,10 +100,9 @@ param (
 	[string] $MakeDirectory,
 
 	[Parameter()]
-	[Alias('Source','nru')]
 	[AllowNull()]
 	# NuGet source to use for fetching modules and packages. It can have semicolon separated urls/paths. If not specified, NuGet.exe would be called without source parameter.
-	[string] $NugetRepositoryUrl,
+	[string] $NuGetSource,
 	
 	[Parameter()]
 	[AllowNull()]
@@ -179,7 +178,7 @@ function private:Build-Context()
 	function Construct-NuGetArgs($cfg)
 	{
 		$args = @()
-		if ($cfg.NugetRepositoryUrl) { $args+="-Source"; $args+=$cfg.NugetRepositoryUrl; }
+		if ($cfg.NuGetSource) { $args+="-Source"; $args+=$cfg.NuGetSource; }
 		if($cfg.NuGetConfig) { $args+="-ConfigFile"; $args+=$cfg.NuGetConfig; }
 		return $args
 	}
@@ -196,7 +195,7 @@ function private:Build-Context()
 	Add-Property $object 'AnsiConsole' $defaults if($AnsiConsole.IsPresent) { $AnsiConsole} else { $null }
 	Add-Property $object 'MakeDirectory' $defaults $MakeDirectory '.'
 	Add-Property $object 'NuGetExe' $defaults $NuGetExe $(Locate-NuGetExe)
-	Add-Property $object 'NugetRepositoryUrl' $defaults $NugetRepositoryUrl
+	Add-Property $object 'NuGetSource' $defaults $NuGetSource
 	Add-Property $object 'NuGetConfig' $defaults $NuGetConfig $(Locate-NuGetConfig)
 	Add-PropertyValue $object 'NuGetArgs' $(Construct-NuGetArgs $object)
 
