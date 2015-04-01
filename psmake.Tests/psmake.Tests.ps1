@@ -162,3 +162,65 @@ Module psmake.mod.test ver. 1.0.0.1 is up to date.
 "@
     }
 }
+
+Describe "Get-Version" {
+        
+    It "Should return version number" {
+        $ver = & $psmake -GetVersion
+        $ver | Should Match '^[0-9]+(\.[0-9]+){0,3}$'
+    }
+}
+
+Describe "Make" {
+        
+    It "Should run all steps" {
+        $md = Create-MakeDir
+        Set-Content "$md\Makefile.ps1" @"
+Define-Step -Name 'Step one' -Target 'build' -Body { Write-Output 'A' }
+Define-Step -Name 'Step two' -Target 'build,deploy' -Body { Write-Output 'B' }
+Define-Step -Name 'Step two' -Target 'deploy' -Body { Write-Output 'C' }
+"@
+
+        $output = & $psmake -md $md -t build
+        $output -join '|' | Should Be 'A|B'
+
+        $output = & $psmake -md $md -t deploy
+        $output -join '|' | Should Be 'B|C'
+    }
+
+    It "Should load Environment.ps1 before steps, and preserve original state between steps" {
+        $md = Create-MakeDir
+        Set-Content "$md\Environment.ps1" "`$Value='abc'"
+
+        Set-Content "$md\Makefile.ps1" @"
+Define-Step -Name 'Step one' -Target 'build' -Body { Write-Output `$Value; `$Value='bcd'; Write-Output `$Value; }
+Define-Step -Name 'Step two' -Target 'build' -Body { Write-Output `$Value; }
+"@
+
+        $output = & $psmake -md $md -t build
+        $output -join '|' | Should Be 'abc|bcd|abc'
+    }
+
+    It "Should allow to use modules within steps, but enforce to use Require-Module before accessing it's methods" {
+        $md = Create-MakeDir
+        & $psmake -md $md -AddModule -ModuleName 'psmake.mod.test' -ModuleVersion '1.0.0.0' -NuGetsource "$PSScriptRoot\repo1"
+
+        Set-Content "$md\Makefile.ps1" @"
+Define-Step -Name 'Step one' -Target 'build,deploy' -Body { . (require 'psmake.mod.test'); Test; }
+Define-Step -Name 'Step two' -Target 'deploy' -Body { Test; }
+"@
+
+        $output = & $psmake -md $md -t build
+        $output -join '|' | Should Be 'test'
+
+        try
+        {
+            & $psmake -md $md -t deploy
+            throw 'Fail'
+        }
+        catch [Exception]
+        {
+            $_.Exception.Message | Should Match "The term 'Test' is not recognized as the name of a cmdlet"
+        }
+    }
+}
