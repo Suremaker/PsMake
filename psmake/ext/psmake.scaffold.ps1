@@ -1,11 +1,35 @@
-function Scaffold-Empty($psmakeVersion)
+function Create-DefaultsFile()
 {
-    Write-Host "Creating $($Context.MakeDirectory)..."
-    mkdir $Context.MakeDirectory -ErrorAction SilentlyContinue | Out-Null
-    
+    $file = "$($Context.MakeDirectory)\Defaults.ps1"
+	$defaults=@{}
+	if($Context.NuGetSource) { $defaults.Add('NuGetSource', $Context.NuGetSource) }
+	if($Context.NuGetConfig) { $defaults.Add('NuGetConfig', $Context.NuGetConfig) }
+	$defaults = ($defaults.GetEnumerator() | %{ "`t'$($_.Key)' = '$($_.Value)'"}) -join ";`r`n"
+	Set-Content $file "Write-Output @{`r`n$defaults`r`n}"
+}
+
+function Create-MakefileFile()
+{
+    Write-Host "Creating Makefile.ps1..."
+    $file = "$($Context.MakeDirectory)\Makefile.ps1"
+
+    Set-Content $file @"
+Define-Step -Name 'Step one' -Target 'build' -Body {
+`techo 'Greetings from step one'
+}
+
+Define-Step -Name 'Step two' -Target 'build,deploy' -Body {
+`techo 'Greetings from step two'
+}
+"@
+
+}
+
+function Create-MakeFile($psmakeVersion)
+{
     Write-Host "Creating make.ps1..."
     $nuArgs=if($Context.NuGetConfig) { "-ConfigFile $($Context.NuGetConfig)"} else { '' } 
-    $cmd = "$($Context.NuGetExe) install psmake -Version $psmakeVersion -OutputDirectory $($Context.MakeDirectory)\psmake -Verbosity detailed $nuArgs"  
+    $cmd = "$($Context.NuGetExe) install psmake -Version $psmakeVersion -OutputDirectory $($Context.MakeDirectory)\psmake $nuArgs"  
     $file = "$($Context.MakeDirectory)\make.ps1"
 	$nugetSrc = if ($Context.NuGetSource) { "'$($Context.NuGetSource)'" } else { '$null' }
 	
@@ -30,19 +54,17 @@ $($Context.NuGetExe) install psmake -Version `$PsMakeVer -OutputDirectory $($Con
 & `"$($Context.MakeDirectory)\psmake.`$PsMakeVer\psmake.ps1`" -md $($Context.MakeDirectory) @args
 "@
 	
-    Write-Output $content | Out-File $file
+    Set-Content $file $content
+}
 
-    Write-Host "Creating Makefile.ps1..."
-    $file = "$($Context.MakeDirectory)\Makefile.ps1"
-    Write-Output "Define-Step -Name 'Step one' -Target 'build' -Body { echo 'Greetings from step one' }" | Out-File $file
-    Write-Output "Define-Step -Name 'Step two' -Target 'build,deploy' -Body { echo 'Greetings from step two' }" | Out-File $file -append
-
-	$file = "$($Context.MakeDirectory)\Defaults.ps1"
-	$defaults=@{}
-	if($Context.NuGetSource) { $defaults.Add('NuGetSource', $Context.NuGetSource) }
-	if($Context.NuGetConfig) { $defaults.Add('NuGetConfig', $Context.NuGetConfig) }
-	$defaults = ($defaults.GetEnumerator() | %{ "'$($_.Key)'='$($_.Value)'"}) -join ';'
-	Write-Output "Write-Output @{$defaults}" | Out-File $file
+function Scaffold-Empty($psmakeVersion)
+{
+    Write-Host "Creating $($Context.MakeDirectory)..."
+    mkdir $Context.MakeDirectory -ErrorAction SilentlyContinue | Out-Null
+    
+    Create-MakeFile $psmakeVersion
+    Create-MakefileFile
+    Create-DefaultsFile
 }
 
 function Scaffold-Project($type, $psmakeVersion)

@@ -11,6 +11,8 @@ function Capture-WriteHost($command)
 
 function Create-MakeDir(){ $dir = [guid]::NewGuid().ToString(); return mkdir "$PSScriptRoot\temp\$dir"; }
 
+function Read-Ascii($file) { return [System.Text.Encoding]::ASCII.GetString([System.IO.File]::ReadAllBytes("$file")) }
+
 Describe "List-AvailableModules" {
         
     It "Should list all available modules" {
@@ -168,6 +170,99 @@ Describe "Get-Version" {
     It "Should return version number" {
         $ver = & $psmake -GetVersion
         $ver | Should Match '^[0-9]+(\.[0-9]+){0,3}$'
+    }
+}
+
+Describe "Scaffold" {
+        
+    It "Should generate Defaults.ps1 with NuGetSource and NuGetConfig" {
+        $md = Create-MakeDir
+        & $psmake -Scaffold empty -md $md -NuGetSource source -NuGetConfig config
+        Test-Path "$md\Defaults.ps1" | Should Be $true
+        $content = Read-Ascii "$md\Defaults.ps1"
+        $content | Should Be @"
+Write-Output @{
+`t'NuGetSource' = 'source';
+`t'NuGetConfig' = 'config'
+}
+
+"@
+    }
+
+    It "Should generate Defaults.ps1 with NuGetConfig" {
+        $md = Create-MakeDir
+        & $psmake -Scaffold empty -md $md -NuGetConfig config
+        Test-Path "$md\Defaults.ps1" | Should Be $true
+        $content = Read-Ascii "$md\Defaults.ps1"
+        $content | Should Be @"
+Write-Output @{
+`t'NuGetConfig' = 'config'
+}
+
+"@
+    }
+
+    It "Should generate Defaults.ps1 with default config" {
+        $md = Create-MakeDir
+        & $psmake -Scaffold empty -md $md
+        Test-Path "$md\Defaults.ps1" | Should Be $true
+        $content = Read-Ascii "$md\Defaults.ps1"
+        $content | Should Be @"
+Write-Output @{
+`t'NuGetConfig' = '.nuget\NuGet.Config'
+}
+
+"@
+    }
+
+    It "Should generate Makefile.ps1 with default steps" {
+        $md = Create-MakeDir
+        & $psmake -Scaffold empty -md $md
+        Test-Path "$md\Makefile.ps1" | Should Be $true
+        $content = Read-Ascii "$md\Makefile.ps1"
+        $content | Should Be @"
+Define-Step -Name 'Step one' -Target 'build' -Body {
+`techo 'Greetings from step one'
+}
+
+Define-Step -Name 'Step two' -Target 'build,deploy' -Body {
+`techo 'Greetings from step two'
+}
+
+"@
+    }
+
+    It "Should generate make.ps1 with psmake version, make directory, config and source" {
+        $md = Create-MakeDir
+        & $psmake -Scaffold empty -md $md -nugetsource source -nugetconfig config -nugetexe folder\nuget.exe
+        Test-Path "$md\Make.ps1" | Should Be $true
+        $content = Read-Ascii "$md\Make.ps1"
+        $content -like "*`$private:PsMakeVer = '3.0.0.0'*" | Should Be $true
+        $content -like "*`$private:PsMakeNugetSource = 'source'*" | Should Be $true
+        $content -like "*folder\nuget.exe install psmake -Version `$PsMakeVer -OutputDirectory $md -ConfigFile config @srcArgs*" | Should Be $true
+        $content -like "*& `"$md\psmake.`$PsMakeVer\psmake.ps1`" -md $md @args*" | Should Be $true
+    }
+
+    It "Should generate make.ps1 with psmake version, config and make directory" {
+        $md = Create-MakeDir
+        & $psmake -Scaffold empty -md $md -nugetconfig config -nugetexe folder\nuget.exe
+        Test-Path "$md\Make.ps1" | Should Be $true
+        $content = Read-Ascii "$md\Make.ps1"
+        $content -like "*`$private:PsMakeVer = '3.0.0.0'*" | Should Be $true
+        $content -like "*`$private:PsMakeNugetSource = `$null*" | Should Be $true
+        $content -like "*folder\nuget.exe install psmake -Version `$PsMakeVer -OutputDirectory $md -ConfigFile config @srcArgs*" | Should Be $true
+        $content -like "*& `"$md\psmake.`$PsMakeVer\psmake.ps1`" -md $md @args*" | Should Be $true
+    }
+
+    It "Should generate make.ps1 with psmake version, make directory and default config and nuget.exe" {
+        $md = Create-MakeDir
+        & $psmake -Scaffold empty -md $md
+        Test-Path "$md\Make.ps1" | Should Be $true
+        $content = Read-Ascii "$md\Make.ps1"
+        $content -like "*`$private:PsMakeVer = '3.0.0.0'*" | Should Be $true
+        $content -like "*`$private:PsMakeNugetSource = `$null*" | Should Be $true
+        $content -like "*.nuget\nuget.exe install psmake -Version `$PsMakeVer -OutputDirectory $md -ConfigFile .nuget\NuGet.Config @srcArgs*" | Should Be $true
+        $content -like "*& `"$md\psmake.`$PsMakeVer\psmake.ps1`" -md $md @args*" | Should Be $true
     }
 }
 
