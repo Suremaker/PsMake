@@ -56,10 +56,13 @@ function List-AvailableModules()
 {
     Write-Host "Listing available modules..."
     $args = $Context.NuGetArgs
-    $result = & $Context.NuGetExe list psmake.mod. @args
+    $result = & $Context.NuGetExe list psmake.mod. -NonInteractive @args
 
     $modules = @{}
-    $result | % { $p = $_ -split ' '; $modules.Add($p[0],$p[1]); }
+    $result | % { 
+		$p = $_ -split ' '; 
+		if ($p[1] -match '^[0-9]+(\.[0-9]+){0,3}$') { $modules.Add($p[0],$p[1]) }
+	}
     return $modules
 }
 
