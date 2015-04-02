@@ -51,6 +51,12 @@ Generates initial psmake files in 'make' directory.
 #>
 [CmdletBinding(DefaultParameterSetName="Make")]
 param (
+	[Parameter(Mandatory=$true,ParameterSetName="Make")]
+	[Alias('t')]
+	[ValidateNotNullOrEmpty()]
+	# Target to make. All steps annotated with this target would be made.
+	[string] $Target,
+	
 	[Parameter(Mandatory=$true, ParameterSetName="ListAvailableModules")]
 	[Alias('lam')]
 	# Lists all available modules.
@@ -60,7 +66,7 @@ param (
 	[Alias('lm')]
 	# Lists currently installed modules.
 	[switch] $ListModules,
-
+	
 	[Parameter(Mandatory=$true, ParameterSetName="AddModule")]
 	[Alias('am')]
 	# Adds a new module to Modules.ps1.
@@ -75,11 +81,10 @@ param (
 	# Prints psmake version.
 	[switch] $GetVersion,
 	
-	[Parameter(Mandatory=$true,ParameterSetName="Make")]
-	[Alias('t')]
-	[ValidateNotNullOrEmpty()]
-	# Target to make. All steps annotated with this target would be made.
-	[string] $Target,
+	[Parameter(Mandatory=$true, ParameterSetName="Scaffold")]
+	[ValidateSet('empty')]
+	# Generates a scaffold psmake setup.
+	[string] $Scaffold,
 
 	[Parameter(ParameterSetName="Make")]
 	[Alias('ap')]
@@ -89,10 +94,11 @@ param (
 	# It will result in $Context.key1 = value1, $Context.key2 = $true, $Context.key3 = "abc,def"
 	[string[]] $AdditionalParams,
 	
-	[Parameter(Mandatory=$true, ParameterSetName="Scaffold")]
-	[ValidateSet('empty')]
-	# Generates a scaffold psmake setup.
-	[string] $Scaffold,
+	[Parameter(ParameterSetName="ListAvailableModules")]
+	[Parameter(ParameterSetName="ListModules")]
+	[Alias('sid')]
+	# Returns only package Id.
+	[switch] $ShowIdOnly = $false,
 	
 	[Parameter(Mandatory=$true, ParameterSetName="AddModule")]
 	[Alias('mn','Name')]
@@ -262,8 +268,8 @@ try
 	. $PSScriptRoot\psmake.core.ps1
 	$Context = Build-Context
 
-	if ($ListAvailableModules) { . $PSScriptRoot\psmake.modules.ps1; List-AvailableModules; }
-	elseif ($ListModules) { . $PSScriptRoot\psmake.modules.ps1; List-Modules; }
+	if ($ListAvailableModules) { . $PSScriptRoot\psmake.modules.ps1; List-AvailableModules $ShowIdOnly; }
+	elseif ($ListModules) { . $PSScriptRoot\psmake.modules.ps1; List-Modules $ShowIdOnly; }
 	elseif ($AddModule) { . $PSScriptRoot\psmake.modules.ps1; Add-Module $ModuleName $ModuleVersion; }
 	elseif ($UpdateAllModules) { . $PSScriptRoot\psmake.modules.ps1; Update-Modules; }
 	elseif ($GetVersion) { Get-Version }

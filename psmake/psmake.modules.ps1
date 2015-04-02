@@ -25,9 +25,11 @@ function Fetch-Modules()
     return $(Read-Modules).GetEnumerator() | %{ return Fetch-Module $_.Key $_.Value }
 }
 
-function List-Modules()
+function List-Modules($showIdOnly = $false)
 {
-    return Read-Modules
+    $modules = Read-Modules
+	if ($showIdOnly) { return $modules.Keys } 
+	return $modules
 }
 
 function Write-Modules($modules)
@@ -52,7 +54,7 @@ function Add-Module([string]$name,[string]$version)
     Write-Modules $modules
 }
 
-function List-AvailableModules()
+function List-AvailableModules($showIdOnly = $false)
 {
     Write-Host "Listing available modules..."
     $args = $Context.NuGetArgs
@@ -63,6 +65,7 @@ function List-AvailableModules()
 		$p = $_ -split ' '; 
 		if ($p[1] -match '^[0-9]+(\.[0-9]+){0,3}$') { $modules.Add($p[0],$p[1]) }
 	}
+	if ($showIdOnly) { return $modules.Keys } 
     return $modules
 }
 
