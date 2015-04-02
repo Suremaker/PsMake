@@ -3,3 +3,23 @@ PsMake
 
 Version 3.0.0.0
 ----------------------------------------
+New command-line options:
+-ListAvailableModules: browses all specified repositories (from -NuGetSource or -NuGetConfig) and displays available modules for install
+-ListModules: lists all currently installed modules
+-AddModule: adds a new module
+-UpdateAllModules: updates all currently installed modules to the newest version
+-GetVersion: returns psmake version
+-Scaffold: creates a scaffold for a new project
+-Target: performs a make against a specified target
+
+For more detailed information + examples, type:
+get-help [path]\psmake.ps1 -detailed 
+
+New core commands:
+Call-Program or call: calls an external program and throws if the execution was not successful
+Write-Header: prints a big header on host
+Write-Status: prints a status on host (a small header)
+Fetch-Package: fetches a nuget package and returns path to it's folder
+Create-Object: creates a PSObject with properties and values specified in hashtable parameter
+Require-Module or require: imports a specified module to current scope like a step block
+Make-ScriptBlock: creates a scriptblock that could be executed remotely and would have access to all core commands
