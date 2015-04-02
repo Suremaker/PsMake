@@ -212,7 +212,7 @@ function private:Get-Version()
 
 function private:Load-MakeFile()
 {
-	. $PSScriptRoot\psmake.makefile.ps1;
+	. $PSScriptRoot\ext\psmake.makefile.ps1;
 
 	$path = "$($Context.MakeDirectory)\Makefile.ps1"
 	Write-Header "Loading $path..."
@@ -230,9 +230,9 @@ function private:Load-MakeFile()
 function private:Load-Modules($version)
 {
 	Write-Header "Loading modules"
-	. $PSScriptRoot\psmake.modules.ps1
+	. $PSScriptRoot\ext\psmake.modules.ps1
 	
-	$core = Create-Object @{Name='psmake.core'; File="$PSScriptRoot\psmake.core.ps1"; Version=$version}
+	$core = Create-Object @{Name='psmake.core'; File="$PSScriptRoot\ext\psmake.core.ps1"; Version=$version}
 
 	$modules = @{ $core.Name=$core }
 	Fetch-Modules | %{ $modules.Add($_.Name, $_) }
@@ -264,16 +264,16 @@ function private:Execute-Steps([array]$steps)
 try
 {
 	$ErrorActionPreference = 'Stop'
-	if($AnsiConsole) {. $PSScriptRoot\psmake.ansi.ps1}
-	. $PSScriptRoot\psmake.core.ps1
+	if($AnsiConsole) {. $PSScriptRoot\ext\psmake.ansi.ps1}
+	. $PSScriptRoot\ext\psmake.core.ps1
 	$Context = Build-Context
 
-	if ($ListAvailableModules) { . $PSScriptRoot\psmake.modules.ps1; List-AvailableModules $ShowIdOnly; }
-	elseif ($ListModules) { . $PSScriptRoot\psmake.modules.ps1; List-Modules $ShowIdOnly; }
-	elseif ($AddModule) { . $PSScriptRoot\psmake.modules.ps1; Add-Module $ModuleName $ModuleVersion; }
-	elseif ($UpdateAllModules) { . $PSScriptRoot\psmake.modules.ps1; Update-Modules; }
+	if ($ListAvailableModules) { . $PSScriptRoot\ext\psmake.modules.ps1; List-AvailableModules $ShowIdOnly; }
+	elseif ($ListModules) { . $PSScriptRoot\ext\psmake.modules.ps1; List-Modules $ShowIdOnly; }
+	elseif ($AddModule) { . $PSScriptRoot\ext\psmake.modules.ps1; Add-Module $ModuleName $ModuleVersion; }
+	elseif ($UpdateAllModules) { . $PSScriptRoot\ext\psmake.modules.ps1; Update-Modules; }
 	elseif ($GetVersion) { Get-Version }
-	elseif ($Scaffold) { . $PSScriptRoot\psmake.scaffold.ps1; Scaffold-Project $scaffold $(Get-Version); }
+	elseif ($Scaffold) { . $PSScriptRoot\ext\psmake.scaffold.ps1; Scaffold-Project $scaffold $(Get-Version); }
 	else
 	{
 		$private:steps = Load-MakeFile

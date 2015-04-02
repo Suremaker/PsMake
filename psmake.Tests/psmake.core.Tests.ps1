@@ -1,6 +1,6 @@
 $here = (Split-Path -Parent $MyInvocation.MyCommand.Path).Replace(".Tests", "")
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path).Replace(".Tests.", ".")
-. "$here\$sut"
+. "$here\ext\$sut"
 
 Describe "Call-Program" {
     function Test ($arg, $arg2) { Set-Content 'tmp.txt' "$arg $arg2" }
@@ -58,7 +58,7 @@ Describe "Require-Module" {
 
 Describe "Make-ScriptBlock" {
     $Context = Create-Object @{Prop1='ABC'}
-    $Modules = @{'psmake.core'=Create-Object @{File="$here\$sut"}}
+    $Modules = @{'psmake.core'=Create-Object @{File="$here\ext\$sut"}}
 
     It "Should create script-block having access to all core features" {
         $block = Make-ScriptBlock "Write-Output (Create-Object @{Ctx=`$Context; Md=`$Modules})" $false
