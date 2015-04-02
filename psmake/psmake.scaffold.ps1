@@ -7,11 +7,11 @@ function Scaffold-Empty($psmakeVersion)
     $nuArgs=if($Context.NuGetConfig) { "-ConfigFile $($Context.NuGetConfig)"} else { '' } 
     $cmd = "$($Context.NuGetExe) install psmake -Version $psmakeVersion -OutputDirectory $($Context.MakeDirectory)\psmake -Verbosity detailed $nuArgs"  
     $file = "$($Context.MakeDirectory)\make.ps1"
-	$nugetSrc = if ($Context.NuGetSource) { $Context.NuGetSource } else { '$null' }
+	$nugetSrc = if ($Context.NuGetSource) { "'$($Context.NuGetSource)'" } else { '$null' }
 	
 	$content = @"
 `$private:PsMakeVer = '$psmakeVersion'
-`$private:PsMakeNugetSource = '$nugetSrc'
+`$private:PsMakeNugetSource = $nugetSrc
 
 function private:Get-NuGetArgs (`$params, `$defaultSource)
 {
@@ -38,7 +38,11 @@ $($Context.NuGetExe) install psmake -Version `$PsMakeVer -OutputDirectory $($Con
     Write-Output "Define-Step -Name 'Step two' -Target 'build,deploy' -Body { echo 'Greetings from step two' }" | Out-File $file -append
 
 	$file = "$($Context.MakeDirectory)\Defaults.ps1"
-	Write-Output "Write-Output @{'NuGetSource'='$($Context.NuGetSource)';}" | Out-File $file
+	$defaults=@{}
+	if($Context.NuGetSource) { $defaults.Add('NuGetSource', $Context.NuGetSource) }
+	if($Context.NuGetConfig) { $defaults.Add('NuGetConfig', $Context.NuGetConfig) }
+	$defaults = ($defaults.GetEnumerator() | %{ "'$($_.Key)'='$($_.Value)'"}) -join ';'
+	Write-Output "Write-Output @{$defaults}" | Out-File $file
 }
 
 function Scaffold-Project($type, $psmakeVersion)
