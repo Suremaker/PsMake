@@ -1,4 +1,5 @@
 $psmake = "$PSScriptRoot\..\psmake\psmake.ps1"
+$expectedVersion = '3.0.1.0'
 
 function Capture-WriteHost($command)
 {
@@ -237,7 +238,7 @@ Define-Step -Name 'Step two' -Target 'build,deploy' -Body {
         & $psmake -Scaffold empty -md $md -nugetsource source -nugetconfig config -nugetexe folder\nuget.exe
         Test-Path "$md\Make.ps1" | Should Be $true
         $content = Read-Ascii "$md\Make.ps1"
-        $content -like "*`$private:PsMakeVer = '3.0.0.0'*" | Should Be $true
+        $content -like "*`$private:PsMakeVer = '$expectedVersion'*" | Should Be $true
         $content -like "*`$private:PsMakeNugetSource = 'source'*" | Should Be $true
         $content -like "*folder\nuget.exe install psmake -Version `$PsMakeVer -OutputDirectory $md -ConfigFile config @srcArgs*" | Should Be $true
         $content -like "*& `"$md\psmake.`$PsMakeVer\psmake.ps1`" -md $md @args*" | Should Be $true
@@ -248,7 +249,7 @@ Define-Step -Name 'Step two' -Target 'build,deploy' -Body {
         & $psmake -Scaffold empty -md $md -nugetconfig config -nugetexe folder\nuget.exe
         Test-Path "$md\Make.ps1" | Should Be $true
         $content = Read-Ascii "$md\Make.ps1"
-        $content -like "*`$private:PsMakeVer = '3.0.0.0'*" | Should Be $true
+        $content -like "*`$private:PsMakeVer = '$expectedVersion'*" | Should Be $true
         $content -like "*`$private:PsMakeNugetSource = `$null*" | Should Be $true
         $content -like "*folder\nuget.exe install psmake -Version `$PsMakeVer -OutputDirectory $md -ConfigFile config @srcArgs*" | Should Be $true
         $content -like "*& `"$md\psmake.`$PsMakeVer\psmake.ps1`" -md $md @args*" | Should Be $true
@@ -259,7 +260,7 @@ Define-Step -Name 'Step two' -Target 'build,deploy' -Body {
         & $psmake -Scaffold empty -md $md
         Test-Path "$md\Make.ps1" | Should Be $true
         $content = Read-Ascii "$md\Make.ps1"
-        $content -like "*`$private:PsMakeVer = '3.0.0.0'*" | Should Be $true
+        $content -like "*`$private:PsMakeVer = '$expectedVersion'*" | Should Be $true
         $content -like "*`$private:PsMakeNugetSource = `$null*" | Should Be $true
         $content -like "*.nuget\nuget.exe install psmake -Version `$PsMakeVer -OutputDirectory $md -ConfigFile .nuget\NuGet.Config @srcArgs*" | Should Be $true
         $content -like "*& `"$md\psmake.`$PsMakeVer\psmake.ps1`" -md $md @args*" | Should Be $true

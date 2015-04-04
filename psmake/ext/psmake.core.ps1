@@ -72,6 +72,24 @@ function Write-Status(
 
 <#
 .SYNOPSIS 
+Prints short status in cyan color.
+
+.DESCRIPTION
+Prints short status in cyan color in format:
+
+- Status
+#>
+function Write-ShortStatus(
+    # Status text
+    $text,
+    # Status border style. '-' if not specified 
+    $style="-")
+{
+	Write-Host "$style $text" -foregroundcolor "Cyan"
+}
+
+<#
+.SYNOPSIS 
 Fetches NuGet package of specified name and version.
 
 .DESCRIPTION

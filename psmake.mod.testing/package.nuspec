@@ -1,18 +1,18 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
-    <id>psmake</id>
-    <version>3.0.1.0</version>
-	<title>PSMake</title>
+    <id>psmake.mod.testing</id>
+    <version>1.0.0.0</version>
+	<title>PSMake Testing mod</title>
     <authors>Wojciech Kotlarski</authors>
     <owners>Wojciech Kotlarski</owners>
     <licenseUrl>http://opensource.org/licenses/BSD-2-Clause</licenseUrl>
     <projectUrl>https://github.com/Suremaker/PsMake</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
 	<copyright>Copyright © Wojciech Kotlarski 2015</copyright>
-	<tags>powershell make build CI</tags>
+	<tags>powershell make build CI testing nunit mbunit mstest vstest</tags>
     <language>en-US</language>
-    <description>A PowerShell based tool which controls a software project build process.</description>
+    <description>A testing module for PsMake, allowing to execute nunit/mbunit/mstest tests with optional coverage check</description>
 	<releaseNotes></releaseNotes>
   </metadata>
   <files>
