@@ -245,4 +245,49 @@ Describe "Run-Tests" {
             $_.Exception.Message | Should Be 'A program execution was not successful (Exit code: 1).'
         }
     }
+
+    It "It should allow to successfully run multiple test groups and generate reports" {
+        $tests = @()
+        $tests += Define-NUnitTests -GroupName 'rt7' -TestAssembly $PassingNUnit1,$PassingNUnit2
+        $tests += Define-MbUnitTests -GroupName 'rt8' -TestAssembly $PassingMbUnit1,$PassingMbUnit2
+        $tests += Define-MsTests -GroupName 'rt9' -TestAssembly $PassingMsTest1,$PassingMsTest2
+        $tests | Run-Tests
+        $? | Should Be $true
+        Test-Path 'reports\rt7.xml' | Should Be $true
+        Test-Path 'reports\rt8.xml' | Should Be $true
+        #Test-Path 'reports\rt9.xml' | Should Be $true #MsTest does not generate reports here atm
+    }
+
+    It "It should stop on a first failing group" {
+        $tests = @()
+        $tests += Define-NUnitTests -GroupName 'rt10' -TestAssembly $PassingNUnit1
+        $tests += Define-NUnitTests -GroupName 'rt11' -TestAssembly $FailingNUnit
+        $tests += Define-NUnitTests -GroupName 'rt12' -TestAssembly $PassingNUnit2
+        try
+        {
+            $tests | Run-Tests
+            throw 'Fail'
+        }
+        catch [Exception]
+        {
+            $_.Exception.Message | Should Be 'A program execution was not successful (Exit code: 1).'
+            Test-Path 'reports\rt10.xml' | Should Be $true
+            Test-Path 'reports\rt11.xml' | Should Be $true
+            Test-Path 'reports\rt12.xml' | Should Be $false
+        }
+    }
+
+    It "It should allow to cover tests" {
+        $tests = @()
+        $tests += Define-NUnitTests -GroupName 'rt13' -TestAssembly $PassingNUnit1
+        $tests += Define-MbUnitTests -GroupName 'rt14' -TestAssembly $PassingMbUnit2
+        $tests += Define-MsTests -GroupName 'rt15' -TestAssembly $PassingMsTest1
+        $tests | Run-Tests -Cover -CodeFilter +[Domain.*]* -[*Tests*]* -TestFilter "*Tests*.dll"
+        $? | Should Be $true
+        Test-Path 'reports\rt13.xml' | Should Be $true
+        Test-Path 'reports\rt14.xml' | Should Be $true
+        Test-Path 'reports\rt13_coverage.xml' | Should Be $true
+        Test-Path 'reports\rt14_coverage.xml' | Should Be $true
+        Test-Path 'reports\rt15_coverage.xml' | Should Be $true
+    }
 }

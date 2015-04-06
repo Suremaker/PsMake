@@ -10,3 +10,5 @@ obj
 *.suo
 *.user
 packages
+TestResults
+reports
