@@ -268,12 +268,12 @@ function Check-AcceptableCoverage
 		[ValidateRange(0,100)] 
 		[int]$AcceptableCoverage
     )
-	Write-ShortStatus "Validating code coverage being at least $AcceptableCoverage percent"
+	Write-ShortStatus "Validating code coverage being at least $AcceptableCoverage%"
 
 	[xml]$coverage = Get-Content $SummaryReport
 	$actualCoverage = [double]($coverage.CoverageReport.Summary.Coverage -replace '%','')
-	Write-Host "Coverage is $actualCoverage"
+	Write-Host "Coverage is $actualCoverage%"
 	if($actualCoverage -lt $AcceptableCoverage) {
-		throw "Coverage $($actualCoverage) is below threshold $($AcceptableCoverage)"
+		throw "Coverage $($actualCoverage)% is below threshold $($AcceptableCoverage)%"
 	}
 }

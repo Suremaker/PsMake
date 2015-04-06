@@ -277,17 +277,62 @@ Describe "Run-Tests" {
         }
     }
 
-    It "It should allow to cover tests" {
+    It "It should allow to cover tests and generate reports" {
         $tests = @()
         $tests += Define-NUnitTests -GroupName 'rt13' -TestAssembly $PassingNUnit1
         $tests += Define-MbUnitTests -GroupName 'rt14' -TestAssembly $PassingMbUnit2
         $tests += Define-MsTests -GroupName 'rt15' -TestAssembly $PassingMsTest1
-        $tests | Run-Tests -Cover -CodeFilter +[Domain.*]* -[*Tests*]* -TestFilter "*Tests*.dll"
+        $tests | Run-Tests -Cover -CodeFilter "+[Domain*]* -[*Tests*]*" -TestFilter "*Tests*.dll"
         $? | Should Be $true
         Test-Path 'reports\rt13.xml' | Should Be $true
         Test-Path 'reports\rt14.xml' | Should Be $true
         Test-Path 'reports\rt13_coverage.xml' | Should Be $true
         Test-Path 'reports\rt14_coverage.xml' | Should Be $true
         Test-Path 'reports\rt15_coverage.xml' | Should Be $true
+    }
+
+    It "It should clean reports directory" {
+        Define-NUnitTests -GroupName 'rt1' -TestAssembly $PassingNUnit1 | Run-Tests -EraseReportDirectory
+        $? | Should Be $true
+        Test-Path 'reports\rt1.xml' | Should Be $true
+        (ls 'reports').Count | Should Be 1
+    }
+}
+
+Describe "Generate-CoverageSummary" {
+    
+    It "It should generate coverage summary from coverage reports" {
+        $tests = @()
+        $tests += Define-NUnitTests -GroupName 'rt16' -TestAssembly $PassingNUnit1
+        $tests += Define-MbUnitTests -GroupName 'rt17' -TestAssembly $PassingMbUnit2
+        $tests += Define-MsTests -GroupName 'rt18' -TestAssembly $PassingMsTest1
+        $tests | Run-Tests -Cover -CodeFilter "+[Domain*]* -[*Tests*]*" -TestFilter "*Tests*.dll" | Generate-CoverageSummary
+        $? | Should Be $true
+        Test-Path 'reports\summary\summary.xml' | Should Be $true
+        Test-Path 'reports\summary\index.htm' | Should Be $true
+    }
+}
+
+Describe "Check-AcceptableCoverage" {
+    
+    It "It should allow to verify test coverage" {
+        $tests = @()
+        $tests += Define-NUnitTests -GroupName 'rt19' -TestAssembly $PassingNUnit1
+        $tests += Define-MbUnitTests -GroupName 'rt20' -TestAssembly $PassingMbUnit2
+        $tests += Define-MsTests -GroupName 'rt21' -TestAssembly $PassingMsTest1
+        $tests | Run-Tests -Cover -CodeFilter "+[Domain*]* -[*Tests*]*" -TestFilter "*Tests*.dll" | Generate-CoverageSummary | Check-AcceptableCoverage -AcceptableCoverage 66
+        $? | Should Be $true
+    }
+
+    It "It should throw if test coverage does not meet acceptable level" {
+        try
+        {
+            Define-NUnitTests -GroupName 'rt22' -TestAssembly $PassingNUnit1 | Run-Tests -Cover -CodeFilter "+[Domain*]* -[*Tests*]*" -TestFilter "*Tests*.dll" | Generate-CoverageSummary | Check-AcceptableCoverage -AcceptableCoverage 66
+            throw 'Fail'
+        }
+        catch [Exception]
+        {
+            $_.Exception.Message | Should Be 'Coverage 33.3% is below threshold 66%'
+        }
     }
 }
