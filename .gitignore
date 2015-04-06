@@ -3,3 +3,10 @@
 temp
 libs
 report.xml
+
+bin
+obj
+*ReSharper*
+*.suo
+*.user
+packages
