@@ -3,9 +3,23 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path).Replace(".Tests.", ".")
 . "$here\..\psmake\ext\psmake.core.ps1"
 . "$here\$sut"
 
+# Prepare test context
+$Context = Create-Object @{MakeDirectory=$PSScriptRoot; NuGetExe='.nuget\nuget.exe';}
+
 # Prepare test projects
 call "$($env:windir)\Microsoft.NET\Framework64\v4.0.30319\msbuild.exe" "$PSScriptRoot\TestSolution\Testsolution.sln" /t:"Clean,Build" /p:Configuration=Release /m /verbosity:m /nologo /p:TreatWarningsAsErrors=true
 
+$PassingNUnit1 = "$PSScriptRoot\TestSolution\Passing.NUnit.Tests1\bin\Release\Passing.NUnit.Tests1.dll"
+$PassingNUnit2 = "$PSScriptRoot\TestSolution\Passing.NUnit.Tests2\bin\Release\Passing.NUnit.Tests2.dll"
+$FailingNUnit = "$PSScriptRoot\TestSolution\Failing.NUnit.Tests\bin\Release\Failing.NUnit.Tests.dll"
+
+$PassingMbUnit1 = "$PSScriptRoot\TestSolution\Passing.MbUnit.Tests1\bin\Release\Passing.MbUnit.Tests1.dll"
+$PassingMbUnit2 = "$PSScriptRoot\TestSolution\Passing.MbUnit.Tests2\bin\Release\Passing.MbUnit.Tests2.dll"
+$FailingMbUnit =  "$PSScriptRoot\TestSolution\Failing.MbUnit.Tests\bin\Release\Failing.MbUnit.Tests.dll"
+
+$PassingMsTest1 = "$PSScriptRoot\TestSolution\Passing.MsTest.Tests1\bin\Release\Passing.MsTest.Tests1.dll"
+$PassingMsTest2 = "$PSScriptRoot\TestSolution\Passing.MsTest.Tests2\bin\Release\Passing.MsTest.Tests2.dll"
+$FailingMsTest = "$PSScriptRoot\TestSolution\Failing.MsTest.Tests\bin\Release\Failing.MsTest.Tests.dll"
 
 Describe "Define-NUnitTests" {
     
@@ -36,20 +50,20 @@ Describe "Define-NUnitTests" {
     }
         
     It "It should allow to specify one assembly" {
-        $def = Define-NUnitTests -GroupName 'group' -TestAssembly "$PSScriptRoot\TestSolution\Passing.NUnit.Tests1\bin\Release\Passing.NUnit.Tests1.dll"
+        $def = Define-NUnitTests -GroupName 'group' -TestAssembly $PassingNUnit1
         $def | Should Not Be $null
         $def.Assemblies.GetType() | Should Be 'string[]'
         $def.Assemblies.Length | Should Be 1
-        $def.Assemblies[0] | Should Be "$PSScriptRoot\TestSolution\Passing.NUnit.Tests1\bin\Release\Passing.NUnit.Tests1.dll"
+        $def.Assemblies[0] | Should Be $PassingNUnit1
     }
 
     It "It should allow to specify multiple assemblies" {
-        $def = Define-NUnitTests -GroupName 'group' -TestAssembly "$PSScriptRoot\TestSolution\Passing.NUnit.Tests1\bin\Release\Passing.NUnit.Tests1.dll", "$PSScriptRoot\TestSolution\Passing.NUnit.Tests2\bin\Release\Passing.NUnit.Tests2.dll"
+        $def = Define-NUnitTests -GroupName 'group' -TestAssembly $PassingNUnit1, $PassingNUnit2
         $def | Should Not Be $null
         $def.Assemblies.GetType() | Should Be 'string[]'
         $def.Assemblies.Length | Should Be 2
-        $def.Assemblies[0] | Should Be "$PSScriptRoot\TestSolution\Passing.NUnit.Tests1\bin\Release\Passing.NUnit.Tests1.dll"
-        $def.Assemblies[1] | Should Be "$PSScriptRoot\TestSolution\Passing.NUnit.Tests2\bin\Release\Passing.NUnit.Tests2.dll"
+        $def.Assemblies[0] | Should Be $PassingNUnit1
+        $def.Assemblies[1] | Should Be $PassingNUnit2
     }
 
     It "It should resolve assembly names with wildcards" {
@@ -57,9 +71,9 @@ Describe "Define-NUnitTests" {
         $def | Should Not Be $null
         $def.Assemblies.GetType() | Should Be 'string[]'
         $def.Assemblies.Length | Should Be 3
-        $def.Assemblies.Contains("$PSScriptRoot\TestSolution\Passing.NUnit.Tests1\bin\Release\Passing.NUnit.Tests1.dll") | Should Be $true
-        $def.Assemblies.Contains("$PSScriptRoot\TestSolution\Passing.NUnit.Tests2\bin\Release\Passing.NUnit.Tests2.dll") | Should Be $true
-        $def.Assemblies.Contains("$PSScriptRoot\TestSolution\Failing.NUnit.Tests\bin\Release\Failing.NUnit.Tests.dll") | Should Be $true
+        $def.Assemblies.Contains($PassingNUnit1) | Should Be $true
+        $def.Assemblies.Contains($PassingNUnit2) | Should Be $true
+        $def.Assemblies.Contains($FailingNUnit) | Should Be $true
     }
 }
 
@@ -92,20 +106,20 @@ Describe "Define-MbUnitTests" {
     }
         
     It "It should allow to specify one assembly" {
-        $def = Define-MbUnitTests -GroupName 'group' -TestAssembly "$PSScriptRoot\TestSolution\Passing.MbUnit.Tests1\bin\Release\Passing.MbUnit.Tests1.dll"
+        $def = Define-MbUnitTests -GroupName 'group' -TestAssembly $PassingMbUnit1
         $def | Should Not Be $null
         $def.Assemblies.GetType() | Should Be 'string[]'
         $def.Assemblies.Length | Should Be 1
-        $def.Assemblies[0] | Should Be "$PSScriptRoot\TestSolution\Passing.MbUnit.Tests1\bin\Release\Passing.MbUnit.Tests1.dll"
+        $def.Assemblies[0] | Should Be $PassingMbUnit1
     }
 
     It "It should allow to specify multiple assemblies" {
-        $def = Define-MbUnitTests -GroupName 'group' -TestAssembly "$PSScriptRoot\TestSolution\Passing.MbUnit.Tests1\bin\Release\Passing.MbUnit.Tests1.dll", "$PSScriptRoot\TestSolution\Passing.MbUnit.Tests2\bin\Release\Passing.MbUnit.Tests2.dll"
+        $def = Define-MbUnitTests -GroupName 'group' -TestAssembly $PassingMbUnit1, $PassingMbUnit2
         $def | Should Not Be $null
         $def.Assemblies.GetType() | Should Be 'string[]'
         $def.Assemblies.Length | Should Be 2
-        $def.Assemblies[0] | Should Be "$PSScriptRoot\TestSolution\Passing.MbUnit.Tests1\bin\Release\Passing.MbUnit.Tests1.dll"
-        $def.Assemblies[1] | Should Be "$PSScriptRoot\TestSolution\Passing.MbUnit.Tests2\bin\Release\Passing.MbUnit.Tests2.dll"
+        $def.Assemblies[0] | Should Be $PassingMbUnit1
+        $def.Assemblies[1] | Should Be $PassingMbUnit2
     }
 
     It "It should resolve assembly names with wildcards" {
@@ -113,9 +127,9 @@ Describe "Define-MbUnitTests" {
         $def | Should Not Be $null
         $def.Assemblies.GetType() | Should Be 'string[]'
         $def.Assemblies.Length | Should Be 3
-        $def.Assemblies.Contains("$PSScriptRoot\TestSolution\Passing.MbUnit.Tests1\bin\Release\Passing.MbUnit.Tests1.dll") | Should Be $true
-        $def.Assemblies.Contains("$PSScriptRoot\TestSolution\Passing.MbUnit.Tests2\bin\Release\Passing.MbUnit.Tests2.dll") | Should Be $true
-        $def.Assemblies.Contains("$PSScriptRoot\TestSolution\Failing.MbUnit.Tests\bin\Release\Failing.MbUnit.Tests.dll") | Should Be $true
+        $def.Assemblies.Contains($PassingMbUnit1) | Should Be $true
+        $def.Assemblies.Contains($PassingMbUnit2) | Should Be $true
+        $def.Assemblies.Contains($FailingMbUnit) | Should Be $true
     }
 }
 
@@ -148,20 +162,20 @@ Describe "Define-MsTests" {
     }
         
     It "It should allow to specify one assembly" {
-        $def = Define-MsTests -GroupName 'group' -TestAssembly "$PSScriptRoot\TestSolution\Passing.MsTest.Tests1\bin\Release\Passing.MsTest.Tests1.dll"
+        $def = Define-MsTests -GroupName 'group' -TestAssembly $PassingMsTest1
         $def | Should Not Be $null
         $def.Assemblies.GetType() | Should Be 'string[]'
         $def.Assemblies.Length | Should Be 1
-        $def.Assemblies[0] | Should Be "$PSScriptRoot\TestSolution\Passing.MsTest.Tests1\bin\Release\Passing.MsTest.Tests1.dll"
+        $def.Assemblies[0] | Should Be $PassingMsTest1
     }
 
     It "It should allow to specify multiple assemblies" {
-        $def = Define-MsTests -GroupName 'group' -TestAssembly "$PSScriptRoot\TestSolution\Passing.MsTest.Tests1\bin\Release\Passing.MsTest.Tests1.dll", "$PSScriptRoot\TestSolution\Passing.MsTest.Tests2\bin\Release\Passing.MsTest.Tests2.dll"
+        $def = Define-MsTests -GroupName 'group' -TestAssembly $PassingMsTest1, $PassingMsTest2
         $def | Should Not Be $null
         $def.Assemblies.GetType() | Should Be 'string[]'
         $def.Assemblies.Length | Should Be 2
-        $def.Assemblies[0] | Should Be "$PSScriptRoot\TestSolution\Passing.MsTest.Tests1\bin\Release\Passing.MsTest.Tests1.dll"
-        $def.Assemblies[1] | Should Be "$PSScriptRoot\TestSolution\Passing.MsTest.Tests2\bin\Release\Passing.MsTest.Tests2.dll"
+        $def.Assemblies[0] | Should Be $PassingMsTest1
+        $def.Assemblies[1] | Should Be $PassingMsTest2
     }
 
     It "It should resolve assembly names with wildcards" {
@@ -169,8 +183,66 @@ Describe "Define-MsTests" {
         $def | Should Not Be $null
         $def.Assemblies.GetType() | Should Be 'string[]'
         $def.Assemblies.Length | Should Be 3
-        $def.Assemblies.Contains("$PSScriptRoot\TestSolution\Passing.MsTest.Tests1\bin\Release\Passing.MsTest.Tests1.dll") | Should Be $true
-        $def.Assemblies.Contains("$PSScriptRoot\TestSolution\Passing.MsTest.Tests2\bin\Release\Passing.MsTest.Tests2.dll") | Should Be $true
-        $def.Assemblies.Contains("$PSScriptRoot\TestSolution\Failing.MsTest.Tests\bin\Release\Failing.MsTest.Tests.dll") | Should Be $true
+        $def.Assemblies.Contains($PassingMsTest1) | Should Be $true
+        $def.Assemblies.Contains($PassingMsTest2) | Should Be $true
+        $def.Assemblies.Contains($FailingMsTest) | Should Be $true
+    }
+}
+
+Describe "Run-Tests" {
+    
+    It "It should allow to successfully run NUnit tests with one assembly and generate reports" {
+        Define-NUnitTests -GroupName 'rt1' -TestAssembly $PassingNUnit1 | Run-Tests
+        $? | Should Be $true
+        Test-Path 'reports\rt1.xml' | Should Be $true
+    }
+
+    It "It should throw if NUnit fails any test" {
+        try
+        {
+            Define-NUnitTests -GroupName 'rt2' -TestAssembly $FailingNUnit | Run-Tests
+            throw 'Fail'
+        }
+        catch [Exception]
+        {
+            $_.Exception.Message | Should Be 'A program execution was not successful (Exit code: 1).'
+            Test-Path 'reports\rt2.xml' | Should Be $true
+        }
+    }
+
+    It "It should allow to successfully run MbUnit tests with one assembly and generate reports" {
+        Define-MbUnitTests -GroupName 'rt3' -TestAssembly $PassingMbUnit1 | Run-Tests
+        $? | Should Be $true
+        Test-Path 'reports\rt3.xml' | Should Be $true
+    }
+
+    It "It should throw if MbUnit fails any test" {
+        try
+        {
+            Define-MbUnitTests -GroupName 'rt4' -TestAssembly $FailingMbUnit | Run-Tests
+            throw 'Fail'
+        }
+        catch [Exception]
+        {
+            $_.Exception.Message | Should Be 'A program execution was not successful (Exit code: 1).'
+            Test-Path 'reports\rt4.xml' | Should Be $true
+        }
+    }
+
+    It "It should allow to successfully run MsTest tests with one assembly and generate reports" {
+        Define-MsTests -GroupName 'rt5' -TestAssembly $PassingMsTest1 | Run-Tests
+        $? | Should Be $true
+    }
+
+    It "It should throw if MsTest fails any test" {
+        try
+        {
+            Define-MsTests -GroupName 'rt6' -TestAssembly $FailingMsTest | Run-Tests
+            throw 'Fail'
+        }
+        catch [Exception]
+        {
+            $_.Exception.Message | Should Be 'A program execution was not successful (Exit code: 1).'
+        }
     }
 }
