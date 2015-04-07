@@ -232,6 +232,7 @@ Describe "Run-Tests" {
     It "It should allow to successfully run MsTest tests with one assembly and generate reports" {
         Define-MsTests -GroupName 'rt5' -TestAssembly $PassingMsTest1 | Run-Tests
         $? | Should Be $true
+        Test-Path 'reports\rt5.trx' | Should Be $true
     }
 
     It "It should throw if MsTest fails any test" {
@@ -243,6 +244,7 @@ Describe "Run-Tests" {
         catch [Exception]
         {
             $_.Exception.Message | Should Be 'A program execution was not successful (Exit code: 1).'
+            Test-Path 'reports\rt6.trx' | Should Be $true
         }
     }
 
@@ -255,7 +257,7 @@ Describe "Run-Tests" {
         $? | Should Be $true
         Test-Path 'reports\rt7.xml' | Should Be $true
         Test-Path 'reports\rt8.xml' | Should Be $true
-        #Test-Path 'reports\rt9.xml' | Should Be $true #MsTest does not generate reports here atm
+        Test-Path 'reports\rt9.trx' | Should Be $true
     }
 
     It "It should stop on a first failing group" {
@@ -286,6 +288,7 @@ Describe "Run-Tests" {
         $? | Should Be $true
         Test-Path 'reports\rt13.xml' | Should Be $true
         Test-Path 'reports\rt14.xml' | Should Be $true
+        Test-Path 'reports\rt15.trx' | Should Be $true
         Test-Path 'reports\rt13_coverage.xml' | Should Be $true
         Test-Path 'reports\rt14_coverage.xml' | Should Be $true
         Test-Path 'reports\rt15_coverage.xml' | Should Be $true

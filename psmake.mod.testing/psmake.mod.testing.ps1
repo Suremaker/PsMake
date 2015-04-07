@@ -129,7 +129,8 @@ function Define-MsTests
         Runner="${env:ProgramFiles(x86)}\Microsoft Visual Studio $VisualStudioVersion\Common7\IDE\mstest.exe";
         GetRunnerArgs={
             param([PSObject]$Definition, [string]$ReportDirectory) 
-            return ("/testcontainer:$($Definition.Assemblies)", "/nologo") 
+            [string[]] $asms = $Definition.Assemblies | %{ "/testcontainer:$_"}
+            return ($asms + "/nologo", "/resultsfile:$ReportDirectory\$($Definition.ReportName).trx") 
         };}
 }
 
