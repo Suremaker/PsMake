@@ -1,3 +1,16 @@
+<#
+.SYNOPSIS 
+Defines NUnit test group.
+
+.DESCRIPTION
+Defines NUnit test group.
+It allows to specify a GroupName, one or more TestAssembly paths and optionally a ReportName and NUnitVersion.
+
+A defined tests could be later executed with Run-Tests function.
+
+.EXAMPLE
+PS> Define-NUnitTests -GroupName 'Unit tests' -TestAssembly "MyProject.UnitTests\bin\Release\MyProject.UnitTests.dll"
+#>
 function Define-NUnitTests
 {
     [CmdletBinding()]
@@ -44,6 +57,19 @@ function Define-NUnitTests
         };}
 }
 
+<#
+.SYNOPSIS 
+Defines MbUnit test group.
+
+.DESCRIPTION
+Defines MbUnit test group.
+It allows to specify a GroupName, one or more TestAssembly paths and optionally a ReportName and MbUnitVersion.
+
+A defined tests could be later executed with Run-Tests function.
+
+.EXAMPLE
+PS> Define-MbUnitTests -GroupName 'Unit tests' -TestAssembly "MyProject.UnitTests\bin\Release\MyProject.UnitTests.dll"
+#>
 function Define-MbUnitTests
 {
 	[CmdletBinding()]
@@ -89,6 +115,19 @@ function Define-MbUnitTests
         };}
 }
 
+<#
+.SYNOPSIS 
+Defines MsTest test group.
+
+.DESCRIPTION
+Defines MsTest test group.
+It allows to specify a GroupName, one or more TestAssembly paths and optionally a ReportName and VisualStudioVersion.
+
+A defined tests could be later executed with Run-Tests function.
+
+.EXAMPLE
+PS> Define-MsTests -GroupName 'Unit tests' -TestAssembly "MyProject.UnitTests\bin\Release\MyProject.UnitTests.dll"
+#>
 function Define-MsTests
 {
 	[CmdletBinding()]
@@ -134,6 +173,40 @@ function Define-MsTests
         };}
 }
 
+<#
+.SYNOPSIS 
+Executes tests from one or more specified test definitions.
+
+.DESCRIPTION
+This function allows to execute tests from one or more specified test definitions.
+If multiple test definitions are provided, they are executed sequentially.
+If given test group fail, others are not executed.
+
+If -Cover switch is specified, a test coverage would be calculated for each group.
+The test execution reports and coverage reports would be located in directory specified by -ReportDirectory.
+The convention for coverage report is [ReportName]_coverage.xml, where ReportName is specified in tests defintion.
+
+.EXAMPLE
+PS> Define-NUnitTests -GroupName 'Unit tests' -TestAssembly "MyProject.UnitTests\bin\Release\MyProject.UnitTests.dll" | Run-Tests 
+
+Executes NUnit tests from MyProject.UnitTests\bin\Release\MyProject.UnitTests.dll assembly.
+
+.EXAMPLE
+PS> Define-NUnitTests -GroupName 'Unit tests' -TestAssembly "MyProject.UnitTests\bin\Release\MyProject.UnitTests.dll" | Run-Tests -Cover -CodeFilter '+[MyProject*]* -[*Tests*]*' -TestFilter '*Tests.dll'
+
+Executes NUnit tests from MyProject.UnitTests\bin\Release\MyProject.UnitTests.dll assembly and calculates test coverage for them.
+
+.EXAMPLE
+
+PS> $tests = @()
+PS>	$tests += Define-NUnitTests -GroupName 'NUnit tests' -TestAssembly "MyProject.UnitTests\bin\Release\MyProject.UnitTests.dll"
+PS> $tests += Define-MbUnitTests -GroupName 'MbUnit tests' -TestAssembly "MyProject.MbUnit.UnitTests\bin\Release\MyProject.MbUnit.UnitTests.dll"    
+PS> $tests += Define-MsTests -GroupName 'MsTest tests' -TestAssembly "MyProject.MsTest.UnitTests\bin\Release\MyProject.MsTest.UnitTests.dll"
+PS> $tests | Run-Tests -ReportDirectory 'test_reports' -EraseReportDirectory -Cover -CodeFilter '+[MyProject*]* -[*Tests*]*' -TestFilter '*Tests.dll'
+
+Executes 3 test groups of NUnit, MbUnit and MsTest types, calculates test coverage for all of them and puts all execution result files to test_reports directory.
+The test_reports directory is deleted before test execution.
+#>
 function Run-Tests
 {
     [CmdletBinding()]
@@ -213,14 +286,47 @@ function Run-Tests
     }
 }
 
+<#
+.SYNOPSIS 
+Generates Coverage Summary report for specified coverage report files, generates by Run-Tests command.
+
+.DESCRIPTION
+Generates Coverage Summary report for specified coverage report files, generates by Run-Tests command.
+It is possible to call this function with explicit values, or pipe it with Run-Tests command.
+
+The summary report is generated in two forms: HTML and XML.
+HTML report path is [ReportDirectory]\summary\index.htm
+XML report path is [ReportDirectory]\summary\summary.xml
+
+If piped with Run-Tests, the ReportDirectory would be passed from Run-Tests command.
+
+The XML report could be used later by Check-AcceptableCoverage function.
+
+If multiple coverage report files are specified, a summary report would include all of them.
+
+.EXAMPLE
+PS> Define-NUnitTests -GroupName 'Unit tests' -TestAssembly "MyProject.UnitTests\bin\Release\MyProject.UnitTests.dll" | Run-Tests -Cover -CodeFilter '+[MyProject*]* -[*Tests*]*' -TestFilter '*Tests.dll' | Generate-CoverageSummary
+
+Executes NUnit tests from MyProject.UnitTests\bin\Release\MyProject.UnitTests.dll assembly, calculates test coverage for them and generates coverage summary report.
+
+.EXAMPLE
+
+PS> $tests = @()
+PS>	$tests += Define-NUnitTests -GroupName 'NUnit tests' -TestAssembly "MyProject.UnitTests\bin\Release\MyProject.UnitTests.dll"
+PS> $tests += Define-MbUnitTests -GroupName 'MbUnit tests' -TestAssembly "MyProject.MbUnit.UnitTests\bin\Release\MyProject.MbUnit.UnitTests.dll"    
+PS> $tests += Define-MsTests -GroupName 'MsTest tests' -TestAssembly "MyProject.MsTest.UnitTests\bin\Release\MyProject.MsTest.UnitTests.dll"
+PS> $tests | Run-Tests -Cover -CodeFilter '+[MyProject*]* -[*Tests*]*' -TestFilter '*Tests.dll' | Generate-CoverageSummary
+
+Executes 3 test groups of NUnit, MbUnit and MsTest types, calculates test coverage for all of them and generates coverage summary report containing merged information about all test groups.
+#>
 function Generate-CoverageSummary
 {
     [CmdletBinding()]
 	param (
 		[Parameter(Mandatory=$true,ParameterSetName="standard")]
-		# Path to coverage reports.
+		# Path to coverage report(s).
 		[ValidateNotNullOrEmpty()]
-		[string[]]$CoverageReports,
+		[string[]]$CoverageReport,
 
         [Parameter(ParameterSetName="standard")]
 		# Report directory. Default: reports
@@ -245,16 +351,40 @@ function Generate-CoverageSummary
 	
     if ($TestResult -ne $null)
     {
-        $CoverageReports = $TestResult.CoverageReports
+        $CoverageReport = $TestResult.CoverageReports
         $ReportDirectory = $TestResult.ReportDirectory
     }
 
 	Write-ShortStatus "Generating coverage reports"
-    $reports = $CoverageReports -join ';'
+    $reports = $CoverageReport -join ';'
 	call "$ReportGeneratorPath" "-reporttypes:html,xmlsummary" "-verbosity:error" "-reports:$reports" "-targetdir:$ReportDirectory\summary"
     Write-Output "$ReportDirectory\summary\Summary.xml"
 }
 
+<#
+.SYNOPSIS 
+Checks that acceptable coverage is over specified limit.
+
+.DESCRIPTION
+Checks that coverage level is over specified limit.
+It requires a coverage summary XML report, generated by Generate-CoverageSummary function.
+If coverage level is below specified limit, and exception is thrown.
+
+.EXAMPLE
+PS> Define-NUnitTests -GroupName 'Unit tests' -TestAssembly "MyProject.UnitTests\bin\Release\MyProject.UnitTests.dll" | Run-Tests -Cover -CodeFilter '+[MyProject*]* -[*Tests*]*' -TestFilter '*Tests.dll' | Generate-CoverageSummary | Check-AcceptableCoverage -AcceptableCoverage 95
+
+Executes NUnit tests from MyProject.UnitTests\bin\Release\MyProject.UnitTests.dll assembly, calculates test coverage for them, generates coverage summary report and ensures that coverage level is at least 95%.
+
+.EXAMPLE
+
+PS> $tests = @()
+PS>	$tests += Define-NUnitTests -GroupName 'NUnit tests' -TestAssembly "MyProject.UnitTests\bin\Release\MyProject.UnitTests.dll"
+PS> $tests += Define-MbUnitTests -GroupName 'MbUnit tests' -TestAssembly "MyProject.MbUnit.UnitTests\bin\Release\MyProject.MbUnit.UnitTests.dll"    
+PS> $tests += Define-MsTests -GroupName 'MsTest tests' -TestAssembly "MyProject.MsTest.UnitTests\bin\Release\MyProject.MsTest.UnitTests.dll"
+PS> $tests | Run-Tests -Cover -CodeFilter '+[MyProject*]* -[*Tests*]*' -TestFilter '*Tests.dll' | Generate-CoverageSummary | Check-AcceptableCoverage -AcceptableCoverage 95
+
+Executes 3 test groups of NUnit, MbUnit and MsTest types, calculates test coverage for all of them, generates coverage summary report containing merged information about all test groups and ensures that coverage level is at least 95%.
+#>
 function Check-AcceptableCoverage
 {
     [CmdletBinding()]

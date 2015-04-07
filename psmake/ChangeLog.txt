@@ -1,25 +1,38 @@
 PsMake
 ========================================
 
+Version 3.1.0.0
+----------------------------------------
+Command-line options:
+(Change) -Scaffold: generates now files in UTF-8 format (not UNICODE)
+
+Core functions:
+(New) Write-ShortStatus: prints a short status on host
+(Change) Fetch-Package: detects already installed packages.
+(Change) Fetch-Package: Honors packages with/without trailing zeros in version.
+
+General:
+PsMake helper files are moved to ext sub-directory
+
 Version 3.0.0.0
 ----------------------------------------
-New command-line options:
--ListAvailableModules: browses all specified repositories (from -NuGetSource or -NuGetConfig) and displays available modules for install
--ListModules: lists all currently installed modules
--AddModule: adds a new module
--UpdateAllModules: updates all currently installed modules to the newest version
--GetVersion: returns psmake version
--Scaffold: creates a scaffold for a new project
--Target: performs a make against a specified target
+Command-line options:
+(New) -ListAvailableModules: browses all specified repositories (from -NuGetSource or -NuGetConfig) and displays available modules for install
+(New) -ListModules: lists all currently installed modules
+(New) -AddModule: adds a new module
+(New) -UpdateAllModules: updates all currently installed modules to the newest version
+(New) -GetVersion: returns psmake version
+(New) -Scaffold: creates a scaffold for a new project
+(New) -Target: performs a make against a specified target
 
 For more detailed information + examples, type:
 get-help [path]\psmake.ps1 -detailed 
 
-New core commands:
-Call-Program or call: calls an external program and throws if the execution was not successful
-Write-Header: prints a big header on host
-Write-Status: prints a status on host (a small header)
-Fetch-Package: fetches a nuget package and returns path to it's folder
-Create-Object: creates a PSObject with properties and values specified in hashtable parameter
-Require-Module or require: imports a specified module to current scope like a step block
-Make-ScriptBlock: creates a scriptblock that could be executed remotely and would have access to all core commands
+Core functions:
+(New) Call-Program or call: calls an external program and throws if the execution was not successful
+(New) Write-Header: prints a big header on host
+(New) Write-Status: prints a status on host (a small header)
+(New) Fetch-Package: fetches a nuget package and returns path to it's folder
+(New) Create-Object: creates a PSObject with properties and values specified in hashtable parameter
+(New) Require-Module or require: imports a specified module to current scope like a step block
+(New) Make-ScriptBlock: creates a scriptblock that could be executed remotely and would have access to all core commands
