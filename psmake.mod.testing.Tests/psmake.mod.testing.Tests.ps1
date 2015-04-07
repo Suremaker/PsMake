@@ -40,13 +40,13 @@ Describe "Define-NUnitTests" {
     It "It should define tests with default runner version" {
         $def = Define-NUnitTests -GroupName 'my group' -TestAssembly "some.dll"
         $def | Should Not Be $null
-        $def.PackageVersion | Should Be '2.6.3'
+        $def.PackageVersion | Should Be '2.6.4'
     }
 
     It "It should define tests with sepcified runner version" {
-        $def = Define-NUnitTests -GroupName 'my group' -NUnitVersion '2.6.4' -TestAssembly "some.dll"
+        $def = Define-NUnitTests -GroupName 'my group' -NUnitVersion '2.6.2' -TestAssembly "some.dll"
         $def | Should Not Be $null
-        $def.PackageVersion | Should Be '2.6.4'
+        $def.PackageVersion | Should Be '2.6.2'
     }
         
     It "It should allow to specify one assembly" {
@@ -96,7 +96,7 @@ Describe "Define-MbUnitTests" {
     It "It should define tests with default runner version" {
         $def = Define-MbUnitTests -GroupName 'my group' -TestAssembly "some.dll"
         $def | Should Not Be $null
-        $def.PackageVersion | Should Be '3.4.14.0'
+        $def.PackageVersion | Should Be '3.4.14'
     }
 
     It "It should define tests with sepcified runner version" {

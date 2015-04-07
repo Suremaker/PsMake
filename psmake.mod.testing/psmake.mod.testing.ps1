@@ -21,11 +21,11 @@ function Define-NUnitTests
         [string]$ReportName = $null,
 
         [Parameter()]
-		# NUnit.Runners version. By default it is: 2.6.3
+		# NUnit.Runners version. By default it is: 2.6.4
 		[ValidateNotNullOrEmpty()]
 		[ValidatePattern("^[0-9]+(\.[0-9]+){0,3}$")]
         [Alias('RunnerVersion')]
-		[string]$NUnitVersion = "2.6.3"
+		[string]$NUnitVersion = "2.6.4"
     )
 
     . $PSScriptRoot\internals.ps1
@@ -67,10 +67,10 @@ function Define-MbUnitTests
         [string]$ReportName = $null,
 		
 		[Parameter()]
-		# GallioBundle version. By default it is: 2.6.3
+		# GallioBundle version. By default it is: 3.4.14
 		[ValidateNotNullOrEmpty()]
 		[ValidatePattern("^[0-9]+(\.[0-9]+){0,3}$")]
-		[string]$MbUnitVersion = "3.4.14.0"
+		[string]$MbUnitVersion = "3.4.14"
 	)
 
     . $PSScriptRoot\internals.ps1
