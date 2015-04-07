@@ -102,13 +102,37 @@ function Fetch-Package(
     # Package version to fetch 
     $version)
 {
+	function Find-Package($packagesDir, $name, $version)
+	{
+		$versionComponents = $version -split '\.'
+        while ($versionComponents.Length -le 4) { $versionComponents += 0 }
+
+		for($i = $versionComponents.Length-1; $i -ge 0; $i--)
+        {
+            $path = (([string[]]"$packageDir\$name") + $versionComponents[0..$i]) -join '.'            
+            if(Test-Path $path) { return $path }
+
+            $num=0
+            if ([System.Int32]::TryParse($versionComponents[$i],[ref]$num) -and ($num -ne 0)) { break; }
+        }
+        return $null
+	}
+
 	Write-Host "Fetching $name ver. $version..."
 	if (!$Context.MakeDirectory) {$packageDir='packages'}
 	else {$packageDir="$($Context.MakeDirectory)\packages"}
 	
+	$package = Find-Package $packageDir $name $version
+    if ($package -ne $null) 
+    {
+        $name = split-path $package -leaf
+        Write-Host "Found installed package: $name"
+        return $package
+    }	
+
     $nuArgs=$Context.NuGetArgs
 	call $Context.NugetExe install $name -Version $version -OutputDirectory "$packageDir" -Verbosity detailed @nuArgs
-	return "$packageDir\$name.$version"
+	return Find-Package $packageDir $name $version
 }
 
 <# 
