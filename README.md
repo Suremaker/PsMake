@@ -126,3 +126,5 @@ That is why `.\make.ps1 -Target build` resulted with execution of both steps.
 The generated `make.ps1` passes all parameters to main psmake script, which means that it accepts all parameters as psmake.
 
 Please execute `PS> Get-Help .\psmake.3.1.0.0\psmake.ps1 -Detailed` to see detailed help and additional examples.
+
+Also please visit [wiki](https://github.com/Suremaker/PsMake/wiki) page for further details.
