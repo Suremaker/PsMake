@@ -1,6 +1,12 @@
 PsMake
 ========================================
 
+Version 3.1.1.0
+----------------------------------------
+Core functions:
+(Change) Fetch-Package: returns now a full path to required package, instead of relative one.
+(Change) Make-ScriptBlock: includes Environment.ps1 file by it's full path.
+
 Version 3.1.0.0
 ----------------------------------------
 Command-line options:

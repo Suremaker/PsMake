@@ -1,5 +1,5 @@
 $psmake = "$PSScriptRoot\..\psmake\psmake.ps1"
-$expectedVersion = '3.1.0.0'
+$expectedVersion = '3.1.1.0'
 
 function Capture-WriteHost($command)
 {
@@ -318,5 +318,18 @@ Define-Step -Name 'Step two' -Target 'deploy' -Body { Test; }
         {
             $_.Exception.Message | Should Match "The term 'Test' is not recognized as the name of a cmdlet"
         }
+    }
+	
+	It "Require-Module should return a full path to module" {
+        $md = Create-MakeDir
+        & $psmake -md $md -AddModule -ModuleName 'psmake.mod.test' -ModuleVersion '1.0.0.0' -NuGetsource "$PSScriptRoot\repo1"
+
+        Set-Content "$md\Makefile.ps1" @"
+Define-Step -Name 'Step one' -Target 'build' -Body { Write-Output (require 'psmake.mod.test'); }
+"@
+
+        $output = & $psmake -md $md -t build
+		$expected = [System.IO.Path]::GetFullPath("$md\packages\psmake.mod.test.1.0.0.0\psmake.mod.test.ps1")
+        $output -join '|' | Should Be $expected
     }
 }
