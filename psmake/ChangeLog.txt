@@ -1,6 +1,11 @@
 PsMake
 ========================================
 
+Version 3.1.2.0
+----------------------------------------
+Core functions:
+(Fix) Fetch-Package, Make-ScriptBlock: uses now $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath() to get a full path names for scripts.
+  
 Version 3.1.1.0
 ----------------------------------------
 Core functions:

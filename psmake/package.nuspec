@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>psmake</id>
-    <version>3.1.1.0</version>
+    <version>3.1.2.0</version>
 	<title>PSMake</title>
     <authors>Wojciech Kotlarski</authors>
     <owners>Wojciech Kotlarski</owners>
@@ -14,8 +14,7 @@
     <language>en-US</language>
     <description>A PowerShell based tool which controls a software project build process.</description>
 	<releaseNotes>Core functions:
-(Change) Fetch-Package: returns now a full path to required package, instead of relative one.
-(Change) Make-ScriptBlock: includes Environment.ps1 file by it's full path.</releaseNotes>
+(Fix) Fetch-Package, Make-ScriptBlock: uses now $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath() to get a full path names for scripts.</releaseNotes>
   </metadata>
   <files>
     <file src="**\*" target="." exclude="**\*.nuspec"/>

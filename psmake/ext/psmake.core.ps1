@@ -110,7 +110,7 @@ function Fetch-Package(
 		for($i = $versionComponents.Length-1; $i -ge 0; $i--)
         {
             $path = (([string[]]"$packageDir\$name") + $versionComponents[0..$i]) -join '.'            
-            if(Test-Path $path) { return [System.IO.Path]::GetFullPath($path) }
+            if(Test-Path $path) { return $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($path) }
 
             $num=0
             if ([System.Int32]::TryParse($versionComponents[$i],[ref]$num) -and ($num -ne 0)) { break; }
@@ -178,7 +178,7 @@ function Make-ScriptBlock([string]$code, [boolean]$remote=$true)
     { 
         [string]$core = require 'psmake.core'
 		$envPath = "$($Context.MakeDirectory)\Environment.ps1"
-		$envPath = [System.IO.Path]::GetFullPath($envPath)
+		$envPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($envPath)
 		$env=""
 		if(Test-Path $envPath) { $env=" . $envPath $($Context.Target);"}
         $code = "`$Context=`$using:Context; `$Modules=`$using:Modules; . $core;$env $code"
