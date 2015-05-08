@@ -23,6 +23,36 @@ Describe "Call-Program" {
             $_.Exception.Message | Should Be 'A program execution was not successful (Exit code: 1).'
         }
     }
+
+    It "Prints command stderr on Write-Host" {
+
+        $captured=@{}
+        try
+        {
+            function Write-Host
+            {
+                param(
+                    [Parameter(Position=0, ValueFromPipeline=$true, ValueFromRemainingArguments=$true)]
+                    ${Object},
+                    [switch]${NoNewline},
+                    ${Separator},
+                    ${ForegroundColor},
+                    ${BackgroundColor}) 
+                    
+                    process
+                    {
+                        $captured.Add("$_".Trim(),'')
+                    }
+            }
+            call 'cmd.exe' '/c' 'echo message 1>&2'
+            throw 'Call-Program should throw.'
+        }
+        catch [Exception]
+        {
+            Remove-Item function:\Write-Host
+            $captured.ContainsKey('message') | Should Be $true
+        }
+    }
 }
 
 Describe "Create-Object" {

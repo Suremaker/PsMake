@@ -207,7 +207,7 @@ function private:Build-Context()
 
 function private:Get-Version()
 {
-	return "3.1.2.0"
+	return "3.1.3.0"
 }
 
 function private:Load-MakeFile()

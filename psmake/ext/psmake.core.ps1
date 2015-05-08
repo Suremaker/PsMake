@@ -18,7 +18,7 @@ function Call-Program (
     $args) 
 {
 	Write-Host $command $args -ForegroundColor "Gray"
-	& $command $args | Write-Host -ForegroundColor "Magenta"
+	& $command $args 2>&1 | Write-Host -ForegroundColor "Magenta"
 	if (-not $?) { throw "A program execution was not successful (Exit code: $LASTEXITCODE)." }
 }
 
