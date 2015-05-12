@@ -44,7 +44,7 @@ Describe "Call-Program" {
                         $captured.Add("$_".Trim(),'')
                     }
             }
-            call 'cmd.exe' '/c' 'echo message 1>&2'
+            call 'cmd.exe' '/c' 'echo message 1>&2 & exit 1'
             throw 'Call-Program should throw.'
         }
         catch [Exception]
@@ -52,6 +52,28 @@ Describe "Call-Program" {
             Remove-Item function:\Write-Host
             $captured.ContainsKey('message') | Should Be $true
         }
+    }
+	
+	It "Prints command stderr on Write-Host but does not throw if command is successful" {
+
+        $captured=@{}
+		function Write-Host
+		{
+			param(
+				[Parameter(Position=0, ValueFromPipeline=$true, ValueFromRemainingArguments=$true)]
+				${Object},
+				[switch]${NoNewline},
+				${Separator},
+				${ForegroundColor},
+				${BackgroundColor}) 
+				
+				process
+				{
+					$captured.Add("$_".Trim(),'')
+				}
+		}
+		call 'cmd.exe' '/c' 'echo message 1>&2'
+		$captured.ContainsKey('message') | Should Be $true
     }
 }
 

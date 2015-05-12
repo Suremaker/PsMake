@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>psmake</id>
-    <version>3.1.3.0</version>
+    <version>3.1.4.0</version>
 	<title>PSMake</title>
     <authors>Wojciech Kotlarski</authors>
     <owners>Wojciech Kotlarski</owners>
@@ -14,7 +14,8 @@
     <language>en-US</language>
     <description>A PowerShell based tool which controls a software project build process.</description>
 	<releaseNotes>Core functions:
-(Fix) Call-Program: redirects standard error stream of called application to Write-Host</releaseNotes>
+(Fix) Call-Program: if executed command prints error on stderr but returns 0, Call-Program does not throw
+(Change) Call-Program: uses $LastExitCode instead $? to detect if operation was successful</releaseNotes>
   </metadata>
   <files>
     <file src="**\*" target="." exclude="**\*.nuspec"/>

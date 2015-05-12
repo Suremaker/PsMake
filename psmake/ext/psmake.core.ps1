@@ -18,8 +18,10 @@ function Call-Program (
     $args) 
 {
 	Write-Host $command $args -ForegroundColor "Gray"
-	& $command $args 2>&1 | Write-Host -ForegroundColor "Magenta"
-	if (-not $?) { throw "A program execution was not successful (Exit code: $LASTEXITCODE)." }
+	$ErrorActionPreference = "continue" #don't throw if anything is written on stderr
+	& $command $args 2>&1  | Write-Host -ForegroundColor "Magenta"
+	#throw if application exit code is not 0
+	if ($LastExitCode -ne 0) { throw "A program execution was not successful (Exit code: $LASTEXITCODE)." }
 }
 
 set-alias call Call-Program

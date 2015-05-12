@@ -1,5 +1,5 @@
 $psmake = "$PSScriptRoot\..\psmake\psmake.ps1"
-$expectedVersion = '3.1.3.0'
+$expectedVersion = '3.1.4.0'
 
 function Capture-WriteHost($command)
 {
