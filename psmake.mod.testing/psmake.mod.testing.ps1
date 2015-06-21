@@ -24,9 +24,9 @@ function Define-NUnitTests
         [Parameter(Mandatory=$true, Position=1)]
         # Test assembly path, where path supports * and ? wildcards.
         # It is possible to specify multiple paths.
-		[ValidateNotNullOrEmpty()]
+        [ValidateNotNullOrEmpty()]
         [Alias('ta')]
-		[string[]]$TestAssembly,
+        [string[]]$TestAssembly,
 
         [Parameter()]
         # Test report name. If not specified, a GroupName parameter would be used (spaces would be converted to underscores). 
@@ -34,11 +34,11 @@ function Define-NUnitTests
         [string]$ReportName = $null,
 
         [Parameter()]
-		# NUnit.Runners version. By default it is: 2.6.4
-		[ValidateNotNullOrEmpty()]
-		[ValidatePattern("^[0-9]+(\.[0-9]+){0,3}$")]
+        # NUnit.Runners version. By default it is: 2.6.4
+        [ValidateNotNullOrEmpty()]
+        [ValidatePattern("^[0-9]+(\.[0-9]+){0,3}$")]
         [Alias('RunnerVersion')]
-		[string]$NUnitVersion = "2.6.4"
+        [string]$NUnitVersion = "2.6.4"
     )
 
     . $PSScriptRoot\internals.ps1
@@ -72,9 +72,9 @@ PS> Define-MbUnitTests -GroupName 'Unit tests' -TestAssembly "MyProject.UnitTest
 #>
 function Define-MbUnitTests
 {
-	[CmdletBinding()]
-	param (
-		[Parameter(Mandatory=$true, Position=0)]
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$true, Position=0)]
         # Test group name. Used for display as well as naming reports. 
         [ValidateNotNullOrEmpty()]
         [Alias('Name','tgn')]
@@ -83,21 +83,21 @@ function Define-MbUnitTests
         [Parameter(Mandatory=$true, Position=1)]
         # Test assembly path, where path supports * and ? wildcards.
         # It is possible to specify multiple paths.
-		[ValidateNotNullOrEmpty()]
+        [ValidateNotNullOrEmpty()]
         [Alias('ta')]
-		[string[]]$TestAssembly,
+        [string[]]$TestAssembly,
 
         [Parameter()]
         # Test report name. If not specified, a GroupName parameter would be used (spaces would be converted to underscores). 
         [AllowNull()]
         [string]$ReportName = $null,
-		
-		[Parameter()]
-		# GallioBundle version. By default it is: 3.4.14
-		[ValidateNotNullOrEmpty()]
-		[ValidatePattern("^[0-9]+(\.[0-9]+){0,3}$")]
-		[string]$MbUnitVersion = "3.4.14"
-	)
+        
+        [Parameter()]
+        # GallioBundle version. By default it is: 3.4.14
+        [ValidateNotNullOrEmpty()]
+        [ValidatePattern("^[0-9]+(\.[0-9]+){0,3}$")]
+        [string]$MbUnitVersion = "3.4.14"
+    )
 
     . $PSScriptRoot\internals.ps1
     if (($ReportName -eq $null) -or ($ReportName -eq '')) { $ReportName = $GroupName -replace ' ','_' }
@@ -130,9 +130,9 @@ PS> Define-MsTests -GroupName 'Unit tests' -TestAssembly "MyProject.UnitTests\bi
 #>
 function Define-MsTests
 {
-	[CmdletBinding()]
-	param (
-		[Parameter(Mandatory=$true, Position=0)]
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$true, Position=0)]
         # Test group name. Used for display as well as naming reports. 
         [ValidateNotNullOrEmpty()]
         [Alias('Name','tgn')]
@@ -141,20 +141,20 @@ function Define-MsTests
         [Parameter(Mandatory=$true, Position=1)]
         # Test assembly path, where path supports * and ? wildcards.
         # It is possible to specify multiple paths.
-		[ValidateNotNullOrEmpty()]
+        [ValidateNotNullOrEmpty()]
         [Alias('ta')]
-		[string[]]$TestAssembly,
+        [string[]]$TestAssembly,
 
         [Parameter()]
         # Test report name. If not specified, a GroupName parameter would be used (spaces would be converted to underscores). 
         [AllowNull()]
         [string]$ReportName = $null,
-		
-		[Parameter()]
-		# Visual Studio version used to find mstest.exe. The default is: 12.0
-		[ValidateNotNullOrEmpty()]
-		[string]$VisualStudioVersion = "12.0"
-	)
+        
+        [Parameter()]
+        # Visual Studio version used to find mstest.exe. The default is: 12.0
+        [ValidateNotNullOrEmpty()]
+        [string]$VisualStudioVersion = "12.0"
+    )
 
     . $PSScriptRoot\internals.ps1
     if (($ReportName -eq $null) -or ($ReportName -eq '')) { $ReportName = $GroupName -replace ' ','_' }
@@ -170,6 +170,65 @@ function Define-MsTests
             param([PSObject]$Definition, [string]$ReportDirectory) 
             [string[]] $asms = $Definition.Assemblies | %{ "/testcontainer:$_"}
             return ($asms + "/nologo", "/resultsfile:$ReportDirectory\$($Definition.ReportName).trx") 
+        };}
+}
+
+<#
+.SYNOPSIS 
+Defines XUnit test group.
+
+.DESCRIPTION
+Defines XUnit test group.
+It allows to specify a GroupName, one or more TestAssembly paths and optionally a ReportName and XUnitVersion.
+
+A defined tests could be later executed with Run-Tests function.
+
+.EXAMPLE
+PS> Define-XUnitTests -GroupName 'Unit tests' -TestAssembly "MyProject.UnitTests\bin\Release\MyProject.UnitTests.dll"
+#>
+function Define-XUnitTests
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true, Position=0)]
+        # Test group name. Used for display as well as naming reports. 
+        [ValidateNotNullOrEmpty()]
+        [Alias('Name','tgn')]
+        [string]$GroupName,
+
+        [Parameter(Mandatory=$true, Position=1)]
+        # Test assembly path, where path supports * and ? wildcards.
+        # It is possible to specify multiple paths.
+        [ValidateNotNullOrEmpty()]
+        [Alias('ta')]
+        [string[]]$TestAssembly,
+
+        [Parameter()]
+        # Test report name. If not specified, a GroupName parameter would be used (spaces would be converted to underscores). 
+        [AllowNull()]
+        [string]$ReportName = $null,
+
+        [Parameter()]
+        # XUnit.Runner.Console version. By default it is: 2.0.0
+        [ValidateNotNullOrEmpty()]
+        [ValidatePattern("^[0-9]+(\.[0-9]+){0,3}$")]
+        [Alias('RunnerVersion')]
+        [string]$XUnitVersion = "2.0.0"
+    )
+
+    . $PSScriptRoot\internals.ps1
+    if (($ReportName -eq $null) -or ($ReportName -eq '')) { $ReportName = $GroupName -replace ' ','_' }
+
+    Create-Object @{
+        Package='xunit.runner.console';
+        PackageVersion=$XUnitVersion;
+        GroupName=$GroupName;
+        ReportName=$ReportName;
+        Assemblies=[string[]](Resolve-TestAssemblies $TestAssembly);
+        Runner='tools\xunit.console.exe';
+        GetRunnerArgs={
+            param([PSObject]$Definition, [string]$ReportDirectory)
+            return $Definition.Assemblies + "-nologo", "-noshadow", "-quiet", "-nunit", "$ReportDirectory\$($Definition.ReportName).xml"
         };}
 }
 
@@ -199,7 +258,7 @@ Executes NUnit tests from MyProject.UnitTests\bin\Release\MyProject.UnitTests.dl
 .EXAMPLE
 
 PS> $tests = @()
-PS>	$tests += Define-NUnitTests -GroupName 'NUnit tests' -TestAssembly "MyProject.UnitTests\bin\Release\MyProject.UnitTests.dll"
+PS>    $tests += Define-NUnitTests -GroupName 'NUnit tests' -TestAssembly "MyProject.UnitTests\bin\Release\MyProject.UnitTests.dll"
 PS> $tests += Define-MbUnitTests -GroupName 'MbUnit tests' -TestAssembly "MyProject.MbUnit.UnitTests\bin\Release\MyProject.MbUnit.UnitTests.dll"    
 PS> $tests += Define-MsTests -GroupName 'MsTest tests' -TestAssembly "MyProject.MsTest.UnitTests\bin\Release\MyProject.MsTest.UnitTests.dll"
 PS> $tests | Run-Tests -ReportDirectory 'test_reports' -EraseReportDirectory -Cover -CodeFilter '+[MyProject*]* -[*Tests*]*' -TestFilter '*Tests.dll'
@@ -210,41 +269,41 @@ The test_reports directory is deleted before test execution.
 function Run-Tests
 {
     [CmdletBinding()]
-	param (
-		[Parameter(Mandatory=$true,ValueFromPipeline=$true,ParameterSetName="coverage")]
-		[Parameter(Mandatory=$true,ValueFromPipeline=$true,ParameterSetName="test")]
-		# An array of test definitions.
-		[ValidateNotNullOrEmpty()]
-		[PSObject[]]$TestDefinition,
-		
-		[Parameter(Mandatory=$true,ParameterSetName="coverage")]
-		# Run tests with OpenCover to determine coverage level
-		[switch]$Cover,
-		
-		[Parameter(Mandatory=$true,ParameterSetName="coverage")]
-		# OpenCover code filter (used for -filter param), like: +[Company.Project.*]* -[*Tests*]*
-		[ValidateNotNullOrEmpty()]
-		[string]$CodeFilter,
-				
-		[Parameter(ParameterSetName="coverage")]
-		# OpenCover test filter (used for -coverbytest param), like: *.Tests.Unit.dll
-		[ValidateNotNullOrEmpty()]
-		[string]$TestFilter="*Tests.dll",
-		
-		[Parameter()]
-		# Reports directory. By default it is 'reports'
-		[ValidateNotNullOrEmpty()]
-		[string]$ReportDirectory = "reports",
+    param (
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ParameterSetName="coverage")]
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ParameterSetName="test")]
+        # An array of test definitions.
+        [ValidateNotNullOrEmpty()]
+        [PSObject[]]$TestDefinition,
+        
+        [Parameter(Mandatory=$true,ParameterSetName="coverage")]
+        # Run tests with OpenCover to determine coverage level
+        [switch]$Cover,
+        
+        [Parameter(Mandatory=$true,ParameterSetName="coverage")]
+        # OpenCover code filter (used for -filter param), like: +[Company.Project.*]* -[*Tests*]*
+        [ValidateNotNullOrEmpty()]
+        [string]$CodeFilter,
+                
+        [Parameter(ParameterSetName="coverage")]
+        # OpenCover test filter (used for -coverbytest param), like: *.Tests.Unit.dll
+        [ValidateNotNullOrEmpty()]
+        [string]$TestFilter="*Tests.dll",
+        
+        [Parameter()]
+        # Reports directory. By default it is 'reports'
+        [ValidateNotNullOrEmpty()]
+        [string]$ReportDirectory = "reports",
 
         [Parameter()]
-		# Delete reports directory before execution. By default it is: $false
-		[switch]$EraseReportDirectory = $false,
-		
-		[Parameter(ParameterSetName="coverage")]
-		# OpenCover version. By default it is: 4.5.2506
-		[ValidateNotNullOrEmpty()]
-		[ValidatePattern("^[0-9]+(\.[0-9]+){0,3}$")]
-		[string]$OpenCoverVersion="4.5.2506"
+        # Delete reports directory before execution. By default it is: $false
+        [switch]$EraseReportDirectory = $false,
+        
+        [Parameter(ParameterSetName="coverage")]
+        # OpenCover version. By default it is: 4.5.2506
+        [ValidateNotNullOrEmpty()]
+        [ValidatePattern("^[0-9]+(\.[0-9]+){0,3}$")]
+        [string]$OpenCoverVersion="4.5.2506"
     )
     begin
     {
@@ -256,7 +315,7 @@ function Run-Tests
 
     process
     {
-        Write-Status "Testing $($_.GroupName)"
+        Write-Status "Executing tests: $($_.GroupName)"
         $runnerArgs = & $_.GetRunnerArgs $_ $ReportDirectory
         if($_.Package -ne $null)
         { 
@@ -266,18 +325,18 @@ function Run-Tests
         else { $runner = $_.Runner }
 
         if (! $Cover)
-	    { 
-		    Write-ShortStatus "Running tests"
-		    call $runner -args $runnerArgs
-	    }
+        { 
+            Write-ShortStatus "Running tests"
+            call $runner -args $runnerArgs
+        }
         else
-        {	
-	        $CoverageReport = "$ReportDirectory\$($_.ReportName)_coverage.xml"
-	        Run-OpenCover -OpenCoverVersion $OpenCoverVersion -Runner $runner -RunnerArgs $runnerArgs -CodeFilter $CodeFilter -TestFilter $TestFilter -Output $CoverageReport
+        {    
+            $CoverageReport = "$ReportDirectory\$($_.ReportName)_coverage.xml"
+            Run-OpenCover -OpenCoverVersion $OpenCoverVersion -Runner $runner -RunnerArgs $runnerArgs -CodeFilter $CodeFilter -TestFilter $TestFilter -Output $CoverageReport
 
             $coverageReports += $CoverageReport
         }
-	
+    
     }
 
     end
@@ -312,7 +371,7 @@ Executes NUnit tests from MyProject.UnitTests\bin\Release\MyProject.UnitTests.dl
 .EXAMPLE
 
 PS> $tests = @()
-PS>	$tests += Define-NUnitTests -GroupName 'NUnit tests' -TestAssembly "MyProject.UnitTests\bin\Release\MyProject.UnitTests.dll"
+PS>    $tests += Define-NUnitTests -GroupName 'NUnit tests' -TestAssembly "MyProject.UnitTests\bin\Release\MyProject.UnitTests.dll"
 PS> $tests += Define-MbUnitTests -GroupName 'MbUnit tests' -TestAssembly "MyProject.MbUnit.UnitTests\bin\Release\MyProject.MbUnit.UnitTests.dll"    
 PS> $tests += Define-MsTests -GroupName 'MsTest tests' -TestAssembly "MyProject.MsTest.UnitTests\bin\Release\MyProject.MsTest.UnitTests.dll"
 PS> $tests | Run-Tests -Cover -CodeFilter '+[MyProject*]* -[*Tests*]*' -TestFilter '*Tests.dll' | Generate-CoverageSummary
@@ -322,16 +381,16 @@ Executes 3 test groups of NUnit, MbUnit and MsTest types, calculates test covera
 function Generate-CoverageSummary
 {
     [CmdletBinding()]
-	param (
-		[Parameter(Mandatory=$true,ParameterSetName="standard")]
-		# Path to coverage report(s).
-		[ValidateNotNullOrEmpty()]
-		[string[]]$CoverageReport,
+    param (
+        [Parameter(Mandatory=$true,ParameterSetName="standard")]
+        # Path to coverage report(s).
+        [ValidateNotNullOrEmpty()]
+        [string[]]$CoverageReport,
 
         [Parameter(ParameterSetName="standard")]
-		# Report directory. Default: reports
-		[ValidateNotNullOrEmpty()]
-		[string]$ReportDirectory = 'reports',
+        # Report directory. Default: reports
+        [ValidateNotNullOrEmpty()]
+        [string]$ReportDirectory = 'reports',
 
         [Parameter(Mandatory=$true,ValueFromPipeline=$true,ParameterSetName="reportInput")]
         # Run-Tests result.
@@ -339,25 +398,25 @@ function Generate-CoverageSummary
         [PSObject]$TestResult,
 
         [Parameter()]
-		# ReportGenerator version. By default it is: 1.9.1.0
-		[ValidateNotNullOrEmpty()]
-		[ValidatePattern("^[0-9]+(\.[0-9]+){0,3}$")]
-		[string]$ReportGeneratorVersion="1.9.1.0"
+        # ReportGenerator version. By default it is: 1.9.1.0
+        [ValidateNotNullOrEmpty()]
+        [ValidatePattern("^[0-9]+(\.[0-9]+){0,3}$")]
+        [string]$ReportGeneratorVersion="1.9.1.0"
     )
 
-	Write-ShortStatus "Preparing ReportGenerator"
-	$reportGenPath = Fetch-Package "ReportGenerator" $ReportGeneratorVersion
-	$ReportGeneratorPath="$reportGenPath\ReportGenerator.exe"
-	
+    Write-ShortStatus "Preparing ReportGenerator"
+    $reportGenPath = Fetch-Package "ReportGenerator" $ReportGeneratorVersion
+    $ReportGeneratorPath="$reportGenPath\ReportGenerator.exe"
+    
     if ($TestResult -ne $null)
     {
         $CoverageReport = $TestResult.CoverageReports
         $ReportDirectory = $TestResult.ReportDirectory
     }
 
-	Write-ShortStatus "Generating coverage reports"
+    Write-ShortStatus "Generating coverage reports"
     $reports = $CoverageReport -join ';'
-	call "$ReportGeneratorPath" "-reporttypes:html,xmlsummary" "-verbosity:error" "-reports:$reports" "-targetdir:$ReportDirectory\summary"
+    call "$ReportGeneratorPath" "-reporttypes:html,xmlsummary" "-verbosity:error" "-reports:$reports" "-targetdir:$ReportDirectory\summary"
     Write-Output "$ReportDirectory\summary\Summary.xml"
 }
 
@@ -378,7 +437,7 @@ Executes NUnit tests from MyProject.UnitTests\bin\Release\MyProject.UnitTests.dl
 .EXAMPLE
 
 PS> $tests = @()
-PS>	$tests += Define-NUnitTests -GroupName 'NUnit tests' -TestAssembly "MyProject.UnitTests\bin\Release\MyProject.UnitTests.dll"
+PS>    $tests += Define-NUnitTests -GroupName 'NUnit tests' -TestAssembly "MyProject.UnitTests\bin\Release\MyProject.UnitTests.dll"
 PS> $tests += Define-MbUnitTests -GroupName 'MbUnit tests' -TestAssembly "MyProject.MbUnit.UnitTests\bin\Release\MyProject.MbUnit.UnitTests.dll"    
 PS> $tests += Define-MsTests -GroupName 'MsTest tests' -TestAssembly "MyProject.MsTest.UnitTests\bin\Release\MyProject.MsTest.UnitTests.dll"
 PS> $tests | Run-Tests -Cover -CodeFilter '+[MyProject*]* -[*Tests*]*' -TestFilter '*Tests.dll' | Generate-CoverageSummary | Check-AcceptableCoverage -AcceptableCoverage 95
@@ -388,23 +447,23 @@ Executes 3 test groups of NUnit, MbUnit and MsTest types, calculates test covera
 function Check-AcceptableCoverage
 {
     [CmdletBinding()]
-	param (
-		[Parameter(Mandatory=$true,ValueFromPipeline=$true)]
-		# Path to coverage summary report (generated by Generate-CoverageSummary function).
-		[ValidateNotNullOrEmpty()]
-		[string]$SummaryReport,
+    param (
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
+        # Path to coverage summary report (generated by Generate-CoverageSummary function).
+        [ValidateNotNullOrEmpty()]
+        [string]$SummaryReport,
 
         [Parameter(Mandatory=$true)]
-		# Minimal acceptable coverage
-		[ValidateRange(0,100)] 
-		[int]$AcceptableCoverage
+        # Minimal acceptable coverage
+        [ValidateRange(0,100)] 
+        [int]$AcceptableCoverage
     )
-	Write-ShortStatus "Validating code coverage being at least $AcceptableCoverage%"
+    Write-ShortStatus "Validating code coverage being at least $AcceptableCoverage%"
 
-	[xml]$coverage = Get-Content $SummaryReport
-	$actualCoverage = [double]($coverage.CoverageReport.Summary.Coverage -replace '%','')
-	Write-Host "Coverage is $actualCoverage%"
-	if($actualCoverage -lt $AcceptableCoverage) {
-		throw "Coverage $($actualCoverage)% is below threshold $($AcceptableCoverage)%"
-	}
+    [xml]$coverage = Get-Content $SummaryReport
+    $actualCoverage = [double]($coverage.CoverageReport.Summary.Coverage -replace '%','')
+    Write-Host "Coverage is $actualCoverage%"
+    if($actualCoverage -lt $AcceptableCoverage) {
+        throw "Coverage $($actualCoverage)% is below threshold $($AcceptableCoverage)%"
+    }
 }
