@@ -5,3 +5,8 @@ build_script:
  - ps: .\packageAll.ps1
 
 test: off
+
+
+artifacts: 
+- path: report.xml 
+  name: Reports
