@@ -1,6 +1,22 @@
 $psmake = "$PSScriptRoot\..\psmake\psmake.ps1"
 $expectedVersion = '3.1.4.0'
 
+<# Disable Write-Host in tested code #>
+function Write-Host
+{
+	param(
+		[Parameter(Position=0, ValueFromPipeline=$true, ValueFromRemainingArguments=$true)]
+		${Object},
+		[switch]${NoNewline},
+		${Separator},
+		${ForegroundColor},
+		${BackgroundColor}) 
+		
+		process
+		{
+		}
+}
+
 function Capture-WriteHost($command)
 {
     $output = @()

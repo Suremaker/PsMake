@@ -12,3 +12,6 @@ obj
 packages
 TestResults
 reports
+psmake.mod.update-assembly-info-version.Tests/proj/
+psmake.mod.update-assembly-info-version.Tests/file.txt
+psmake.mod.update-assembly-info-version.Tests/proj2

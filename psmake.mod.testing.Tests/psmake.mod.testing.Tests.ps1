@@ -3,6 +3,22 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path).Replace(".Tests.", ".")
 . "$here\..\psmake\ext\psmake.core.ps1"
 . "$here\$sut"
 
+<# Disable Write-Host in tested code #>
+function Write-Host
+{
+	param(
+		[Parameter(Position=0, ValueFromPipeline=$true, ValueFromRemainingArguments=$true)]
+		${Object},
+		[switch]${NoNewline},
+		${Separator},
+		${ForegroundColor},
+		${BackgroundColor}) 
+		
+		process
+		{
+		}
+}
+
 # Prepare test context
 $Context = Create-Object @{MakeDirectory=$PSScriptRoot; NuGetExe='.nuget\nuget.exe';}
 
