@@ -51,9 +51,9 @@ Replaces version string all AssemblyInfo.cs files located in specified solution 
 Replaces version string all AssemblyInfo.cs files located in specified solution directory.
 
 .EXAMPLE
-PS> Update-AssemblyInfoVersion '1.0.0.22' 'slnDir'"
+PS> Update-VersionInAssemblyInfo '1.0.0.22' 'slnDir'"
 #>
-function Update-AssemblyInfoVersion
+function Update-VersionInAssemblyInfo
 {
     [CmdletBinding()]
     param (

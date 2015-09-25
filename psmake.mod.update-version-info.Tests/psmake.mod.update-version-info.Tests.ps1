@@ -19,7 +19,7 @@ function Write-Host
         }
 }
 
-Describe "Update-AssemblyInfoVersion" {
+Describe "Update-VersionInAssemblyInfo" {
     
     It "It should update AsseblyInfo.cs versions" {
         rmdir "$PSScriptRoot\proj" -Force -Recurse -ErrorAction "SilentlyContinue"
@@ -33,7 +33,7 @@ Describe "Update-AssemblyInfoVersion" {
         set-content "$PSScriptRoot\proj\inner\AssemblyInfo.cs" "[assembly: SomethingOther(""1.0"")]`n[assembly: AssemblyVersion(""1.0.0.0"")]`n[assembly: AssemblyFileVersion(""1.0.0.0"")]"
         set-content "$PSScriptRoot\proj\OtherFile.cs" "[assembly: SomethingOther(""1.0"")]`n[assembly: AssemblyVersion(""1.0.0.0"")]`n[assembly: AssemblyFileVersion(""1.0.0.0"")]"
 
-        Update-AssemblyInfoVersion '4.3.2.1' "$PSScriptRoot\proj"
+        Update-VersionInAssemblyInfo '4.3.2.1' "$PSScriptRoot\proj"
         
         (get-content "$PSScriptRoot\proj2\AssemblyInfo.cs") -join "`n" | Should Be "[assembly: SomethingOther(""1.0"")]`n[assembly: AssemblyVersion(""1.0.0.0"")]`n[assembly: AssemblyFileVersion(""1.0.0.0"")]"
         (get-content "$PSScriptRoot\proj\AssemblyInfo.cs") -join "`n" | Should Be "[assembly: SomethingOther(""1.0"")]`n[assembly: AssemblyVersion(""4.3.2.1"")]`n[assembly: AssemblyFileVersion(""4.3.2.1"")]"
