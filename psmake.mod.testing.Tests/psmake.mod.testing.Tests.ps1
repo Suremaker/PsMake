@@ -23,6 +23,7 @@ function Write-Host
 $Context = Create-Object @{MakeDirectory=$PSScriptRoot; NuGetExe='.nuget\nuget.exe';}
 
 # Prepare test projects
+call ".nuget\nuget.exe" restore "$PSScriptRoot\TestSolution\Testsolution.sln"
 call "$($env:windir)\Microsoft.NET\Framework64\v4.0.30319\msbuild.exe" "$PSScriptRoot\TestSolution\Testsolution.sln" /t:"Clean,Build" /p:Configuration=Release /m /verbosity:m /nologo /p:TreatWarningsAsErrors=true
 
 $PassingNUnit1 = "$PSScriptRoot\TestSolution\Passing.NUnit.Tests1\bin\Release\Passing.NUnit.Tests1.dll"

@@ -4,17 +4,17 @@ $expectedVersion = '3.1.4.0'
 <# Disable Write-Host in tested code #>
 function Write-Host
 {
-	param(
-		[Parameter(Position=0, ValueFromPipeline=$true, ValueFromRemainingArguments=$true)]
-		${Object},
-		[switch]${NoNewline},
-		${Separator},
-		${ForegroundColor},
-		${BackgroundColor}) 
-		
-		process
-		{
-		}
+    param(
+        [Parameter(Position=0, ValueFromPipeline=$true, ValueFromRemainingArguments=$true)]
+        ${Object},
+        [switch]${NoNewline},
+        ${Separator},
+        ${ForegroundColor},
+        ${BackgroundColor}) 
+        
+        process
+        {
+        }
 }
 
 function Capture-WriteHost($command)
@@ -335,8 +335,8 @@ Define-Step -Name 'Step two' -Target 'deploy' -Body { Test; }
             $_.Exception.Message | Should Match "The term 'Test' is not recognized as the name of a cmdlet"
         }
     }
-	
-	It "Require-Module should return a full path to module" {
+    
+    It "Require-Module should return a full path to module" {
         $md = Create-MakeDir
         & $psmake -md $md -AddModule -ModuleName 'psmake.mod.test' -ModuleVersion '1.0.0.0' -NuGetsource "$PSScriptRoot\repo1"
 
@@ -345,7 +345,7 @@ Define-Step -Name 'Step one' -Target 'build' -Body { Write-Output (require 'psma
 "@
 
         $output = & $psmake -md $md -t build
-		$expected = [System.IO.Path]::GetFullPath("$md\packages\psmake.mod.test.1.0.0.0\psmake.mod.test.ps1")
+        $expected = [System.IO.Path]::GetFullPath("$md\packages\psmake.mod.test.1.0.0.0\psmake.mod.test.ps1")
         $output -join '|' | Should Be $expected
     }
 }

@@ -31,16 +31,16 @@ function Update-VersionInFile
         [string[]]$matchings
     )
 
-	Write-ShortStatus "Updating $File with $Version..."
-	$content = Get-Content $File -Encoding UTF8
-	foreach($match in $matchings)
-	{
-		$from = [Regex]::Escape($match) -replace '%','[0-9]+(\.[0-9]+){0,3}'
-		$to = $match -replace '%',$Version
+    Write-ShortStatus "Updating $File with $Version..."
+    $content = Get-Content $File -Encoding UTF8
+    foreach($match in $matchings)
+    {
+        $from = [Regex]::Escape($match) -replace '%','[0-9]+(\.[0-9]+){0,3}'
+        $to = $match -replace '%',$Version
 
-		$content = $content -replace $from,$to
-	}
-	Set-Content $File -Value $content -Encoding UTF8
+        $content = $content -replace $from,$to
+    }
+    Set-Content $File -Value $content -Encoding UTF8
 }
 
 <#
@@ -55,31 +55,31 @@ PS> Update-AssemblyInfoVersion '1.0.0.22' 'slnDir'"
 #>
 function Update-AssemblyInfoVersion
 {
-	[CmdletBinding()]
-	param (
-		[Parameter(Mandatory=$true)]
-		# Version to set to
-		[ValidateNotNullOrEmpty()]
-		[ValidatePattern("^[0-9]+(\.[0-9]+){0,3}$")]
-		[string]$Version,
-		
-		[Parameter()]
-		# Solution directory
-		[string]$SolutionDirectory = "."
-	) 
-	function Update-SourceVersion ($version)
-	{
-		foreach ($o in $input) 
-		{
-			Update-VersionInFile $o.FullName $version 'Version("%")'
-		}
-	}
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$true)]
+        # Version to set to
+        [ValidateNotNullOrEmpty()]
+        [ValidatePattern("^[0-9]+(\.[0-9]+){0,3}$")]
+        [string]$Version,
+        
+        [Parameter()]
+        # Solution directory
+        [string]$SolutionDirectory = "."
+    ) 
+    function Update-SourceVersion ($version)
+    {
+        foreach ($o in $input) 
+        {
+            Update-VersionInFile $o.FullName $version 'Version("%")'
+        }
+    }
 
-	function Update-AllAssemblyInfoFiles ( $version )
-	{
-		get-childitem -Path $SolutionDirectory -recurse |? {$_.Name -eq "AssemblyInfo.cs"} | Update-SourceVersion $Version
-	}
+    function Update-AllAssemblyInfoFiles ( $version )
+    {
+        get-childitem -Path $SolutionDirectory -recurse |? {$_.Name -eq "AssemblyInfo.cs"} | Update-SourceVersion $Version
+    }
 
-	Write-Status "Updating all AssemblyInfo.cs version to $version in $SolutionDirectory directory"
-	Update-AllAssemblyInfoFiles $Version;
+    Write-Status "Updating all AssemblyInfo.cs version to $version in $SolutionDirectory directory"
+    Update-AllAssemblyInfoFiles $Version;
 }
