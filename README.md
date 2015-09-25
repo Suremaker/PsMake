@@ -1,3 +1,4 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/fx4dyiwbxah5xajw?svg=true)](https://ci.appveyor.com/project/Suremaker/psmake)
 # PsMake
 A PowerShell based tool which controls a software project build process.
 
