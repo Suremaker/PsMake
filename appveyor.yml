@@ -1,12 +1,9 @@
 skip_tags: false
 os: Windows Server 2012
+
 build_script:
- - ps: .\testAll.ps1
  - ps: .\packageAll.ps1
 
-test: off
-
-
-artifacts: 
-- path: report.xml 
-  name: Reports
+test_script:
+ - ps: .\testAll.ps1
+ - ps: (New-Object 'System.Net.WebClient).UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\report.xml))
