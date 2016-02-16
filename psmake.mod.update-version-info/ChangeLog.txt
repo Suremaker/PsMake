@@ -6,3 +6,8 @@ Version 1.0.0.0
 Functions:
 (New) Update-VersionInFile: replaces version string in a specified file.
 (New) Update-VersionInAssemblyInfo: replaces version string all AssemblyInfo.cs files located in specified solution directory.
+
+Version 1.1.0.0
+----------------------------------------
+Functions:
+Update-VersionInAssemblyInfo: extended to allow assembly info file names to be specified.
