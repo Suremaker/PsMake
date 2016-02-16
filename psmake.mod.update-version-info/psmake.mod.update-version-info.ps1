@@ -69,7 +69,7 @@ function Update-VersionInAssemblyInfo
         [string]$SolutionDirectory = ".",
 		
 		[Parameter()]
-        # Solution directory
+        # Assembly info file names
         [string[]]$AssemblyInfoFileNames = ("AssemblyInfo.cs")
     ) 
     function Update-SourceVersion ($version)
