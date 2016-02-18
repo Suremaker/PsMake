@@ -45,13 +45,14 @@ function Update-VersionInFile
 
 <#
 .SYNOPSIS 
-Replaces version string all AssemblyInfo.cs files located in specified solution directory.
+Replaces version string all specified assembly info files located in specified solution directory.
 
 .DESCRIPTION
-Replaces version string all AssemblyInfo.cs files located in specified solution directory.
+Replaces version string all specified assembly info files located in specified solution directory.
+If no AssemblyInfoFileNames specified then 'AssemblyInfo.cs' will be used.
 
 .EXAMPLE
-PS> Update-VersionInAssemblyInfo '1.0.0.22' 'slnDir'"
+PS> Update-VersionInAssemblyInfo '1.0.0.22' 'slnDir'" ('AssemblyInfo.cs')
 #>
 function Update-VersionInAssemblyInfo
 {
@@ -65,7 +66,11 @@ function Update-VersionInAssemblyInfo
         
         [Parameter()]
         # Solution directory
-        [string]$SolutionDirectory = "."
+        [string]$SolutionDirectory = ".",
+		
+		[Parameter()]
+        # Assembly info file names
+        [string[]]$AssemblyInfoFileNames = ("AssemblyInfo.cs")
     ) 
     function Update-SourceVersion ($version)
     {
@@ -77,7 +82,7 @@ function Update-VersionInAssemblyInfo
 
     function Update-AllAssemblyInfoFiles ( $version )
     {
-        get-childitem -Path $SolutionDirectory -recurse |? {$_.Name -eq "AssemblyInfo.cs"} | Update-SourceVersion $Version
+        get-childitem -Path $SolutionDirectory -recurse |? {$_.Name -in $AssemblyInfoFileNames} | Update-SourceVersion $Version
     }
 
     Write-Status "Updating all AssemblyInfo.cs version to $version in $SolutionDirectory directory"
