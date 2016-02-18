@@ -4,7 +4,7 @@
     <id>psmake.mod.update-version-info</id>
     <version>1.1.0.0</version>
     <title>PsMake Update Version Info Module</title>
-    <authors>Wojciech Kotlarski</authors>
+    <authors>Wojciech Kotlarski, William Lord</authors>
     <owners>Wojciech Kotlarski</owners>
     <licenseUrl>http://opensource.org/licenses/BSD-2-Clause</licenseUrl>
     <projectUrl>https://github.com/Suremaker/PsMake</projectUrl>

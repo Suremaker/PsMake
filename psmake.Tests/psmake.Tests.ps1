@@ -318,8 +318,8 @@ Define-Step -Name 'Step two' -Target 'build' -Body { Write-Output `$Value; }
         & $psmake -md $md -AddModule -ModuleName 'psmake.mod.test' -ModuleVersion '1.0.0.0' -NuGetsource "$PSScriptRoot\repo1"
 
         Set-Content "$md\Makefile.ps1" @"
-Define-Step -Name 'Step one' -Target 'build,deploy' -Body { . (require 'psmake.mod.test'); Test; }
-Define-Step -Name 'Step two' -Target 'deploy' -Body { Test; }
+Define-Step -Name 'Step one' -Target 'build,deploy' -Body { . (require 'psmake.mod.test'); local:Test; }
+Define-Step -Name 'Step two' -Target 'deploy' -Body { local:Test; }
 "@
 
         $output = & $psmake -md $md -t build
@@ -332,7 +332,7 @@ Define-Step -Name 'Step two' -Target 'deploy' -Body { Test; }
         }
         catch [Exception]
         {
-            $_.Exception.Message | Should Match "The term 'Test' is not recognized as the name of a cmdlet"
+            $_.Exception.Message | Should Match "The term 'local:Test' is not recognized as the name of a cmdlet"
         }
     }
     
