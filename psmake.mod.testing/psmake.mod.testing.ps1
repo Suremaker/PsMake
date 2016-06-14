@@ -1,9 +1,9 @@
 <#
 .SYNOPSIS 
-Defines NUnit test group.
+Defines NUnit 2.x test group.
 
 .DESCRIPTION
-Defines NUnit test group.
+Defines NUnit 2.x test group.
 It allows to specify a GroupName, one or more TestAssembly paths and optionally a ReportName and NUnitVersion.
 
 A defined tests could be later executed with Run-Tests function.
@@ -54,6 +54,71 @@ function Define-NUnitTests
         GetRunnerArgs={
             param([PSObject]$Definition, [string]$ReportDirectory)
             return $Definition.Assemblies + "/nologo", "/noshadow", "/domain:single", "/trace=Error", "/xml:$ReportDirectory\$($Definition.ReportName).xml"
+        };}
+}
+
+<#
+.SYNOPSIS 
+Defines NUnit 3.x test group.
+
+.DESCRIPTION
+Defines NUnit 3.x test group.
+It allows to specify a GroupName, one or more TestAssembly paths and optionally a ReportName and NUnitVersion.
+
+A defined tests could be later executed with Run-Tests function.
+
+.EXAMPLE
+PS> Define-NUnit3Tests -GroupName 'Unit tests' -TestAssembly "MyProject.UnitTests\bin\Release\MyProject.UnitTests.dll"
+#>
+function Define-NUnit3Tests
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true, Position=0)]
+        # Test group name. Used for display as well as naming reports. 
+        [ValidateNotNullOrEmpty()]
+        [Alias('Name','tgn')]
+        [string]$GroupName,
+
+        [Parameter(Mandatory=$true, Position=1)]
+        # Test assembly path, where path supports * and ? wildcards.
+        # It is possible to specify multiple paths.
+        [ValidateNotNullOrEmpty()]
+        [Alias('ta')]
+        [string[]]$TestAssembly,
+
+        [Parameter()]
+        # Test report name. If not specified, a GroupName parameter would be used (spaces would be converted to underscores). 
+        [AllowNull()]
+        [string]$ReportName = $null,
+
+        [Parameter()]
+        # NUnit.ConsoleRunner version. By default it is: 3.2.1
+        [ValidateNotNullOrEmpty()]
+        [ValidatePattern("^[0-9]+(\.[0-9]+){0,3}$")]
+        [Alias('RunnerVersion')]
+        [string]$NUnitVersion = "3.2.1",
+
+        [Parameter()]
+        # ReportFormat version. By default it is: nunit3
+        [ValidateNotNullOrEmpty()]
+        [string]$ReportFormat = "nunit3"
+    )
+
+    . $PSScriptRoot\internals.ps1
+    if (($ReportName -eq $null) -or ($ReportName -eq '')) { $ReportName = $GroupName -replace ' ','_' }
+
+    Create-Object @{
+        Package='NUnit.ConsoleRunner';
+        PackageVersion=$NUnitVersion;
+        GroupName=$GroupName;
+        ReportName=$ReportName;
+        Assemblies=[string[]](Resolve-TestAssemblies $TestAssembly);
+        Runner='tools\nunit3-console.exe';
+        ReportFormat=$ReportFormat;
+        GetRunnerArgs={
+            param([PSObject]$Definition, [string]$ReportDirectory)
+            return $Definition.Assemblies + "--noheader", "--result=$ReportDirectory\$($Definition.ReportName).xml;format=$($Definition.ReportFormat)"
         };}
 }
 
@@ -300,10 +365,10 @@ function Run-Tests
         [switch]$EraseReportDirectory = $false,
         
         [Parameter(ParameterSetName="coverage")]
-        # OpenCover version. By default it is: 4.5.2506
+        # OpenCover version. By default it is: 4.6.519
         [ValidateNotNullOrEmpty()]
         [ValidatePattern("^[0-9]+(\.[0-9]+){0,3}$")]
-        [string]$OpenCoverVersion="4.5.2506"
+        [string]$OpenCoverVersion="4.6.519"
     )
     begin
     {

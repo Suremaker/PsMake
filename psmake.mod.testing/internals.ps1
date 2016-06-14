@@ -10,12 +10,19 @@ function Prepare-ReportDirectory($ReportDirectory, $erase)
 
 function Run-OpenCover($OpenCoverVersion, $Runner, $RunnerArgs, $CodeFilter, $TestFilter, $Output)
 {
+	function Find-OpenCoverExe([string[]]$paths){
+		foreach($path in $paths){
+			if(Test-Path $path) { return $path; }
+		}
+		throw "None of the paths have OpenCover Console: $paths"
+	}
+
 	Write-ShortStatus "Preparing OpenCover"
 	$openCoverPath = Fetch-Package "OpenCover" $OpenCoverVersion
-	$OpenCoverConsole="$openCoverPath\OpenCover.Console.exe"
+	$openCoverConsole = Find-OpenCoverExe "$openCoverPath\tools\OpenCover.Console.exe", "$openCoverPath\OpenCover.Console.exe"
 
 	Write-ShortStatus "Running tests with OpenCover"
-	call "$OpenCoverConsole" "-log:Error" "-showunvisited" "-register:user" "-target:$Runner"  "-filter:$CodeFilter" "-output:$Output" "-returntargetcode" "-coverbytest:$TestFilter" "-targetargs:$RunnerArgs"
+	call "$openCoverConsole" "-log:Error" "-showunvisited" "-register:user" "-target:$Runner"  "-filter:$CodeFilter" "-output:$Output" "-returntargetcode" "-coverbytest:$TestFilter" "-targetargs:$RunnerArgs"
 }
 
 function Resolve-TestAssemblies

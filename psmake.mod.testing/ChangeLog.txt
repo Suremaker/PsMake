@@ -1,6 +1,15 @@
 PsMake Testing Module
 ========================================
 
+Version 1.1.0.0
+----------------------------------------
+(New) Define-NUnit3Tests: allows to define NUnit3 tests
+(Changed) Run-Tests: Added support for OpenCover 4.6.X package layout and increased default OpenCover version to 4.6.519
+
+Version 1.0.1.0
+----------------------------------------
+(New) Define-XUnitTests: allows to define xUnit tests
+
 Version 1.0.0.0
 ----------------------------------------
 Functions:
