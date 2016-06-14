@@ -9,7 +9,7 @@
     <licenseUrl>http://opensource.org/licenses/BSD-2-Clause</licenseUrl>
     <projectUrl>https://github.com/Suremaker/PsMake</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-	<copyright>Copyright © Wojciech Kotlarski 2015</copyright>
+	<copyright>Copyright © Wojciech Kotlarski 2015-2016</copyright>
 	<tags>powershell make build CI testing nunit mbunit mstest vstest</tags>
     <language>en-US</language>
     <description>A testing module for PsMake, allowing to execute nunit/nunit3/mbunit/mstest/xunit tests with optional coverage check</description>
