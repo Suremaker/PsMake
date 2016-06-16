@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>psmake.mod.update-version-info</id>
-    <version>1.1.0.0</version>
+    <version>1.2.0.0</version>
     <title>PsMake Update Version Info Module</title>
     <authors>Wojciech Kotlarski, William Lord</authors>
     <owners>Wojciech Kotlarski</owners>
@@ -14,7 +14,7 @@
     <language>en-US</language>
     <description>PsMake Update Version Info for various files like AssemblyInfo.cs </description>
 	<releaseNotes>Functions:
-Update-VersionInAssemblyInfo: extended to allow assembly info file names to be specified.
+Update-VersionInAssemblyInfo: added Exclude parameter
 	</releaseNotes>
   </metadata>
   <files>

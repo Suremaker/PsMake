@@ -61,6 +61,19 @@ Describe "Update-VersionInAssemblyInfo" {
         (get-content "$PSScriptRoot\proj\inner\OtherFile.cs") -join "`n" | Should Be "[assembly: SomethingOther(""1.0"")]`n[assembly: AssemblyVersion(""4.3.2.1"")]`n[assembly: AssemblyFileVersion(""4.3.2.1"")]"
         (get-content "$PSScriptRoot\proj\OtherFile.cs") -join "`n" | Should Be "[assembly: SomethingOther(""1.0"")]`n[assembly: AssemblyVersion(""4.3.2.1"")]`n[assembly: AssemblyFileVersion(""4.3.2.1"")]"
     }
+	
+	It "It should update AsseblyInfo.cs versions everywhere except Exclusions" {
+        
+        SetupAssemblyInfoFiles
+
+        Update-VersionInAssemblyInfo '4.3.2.1' "$PSScriptRoot" -Exclude "*inner*","*proj2*"
+        
+        (get-content "$PSScriptRoot\proj2\AssemblyInfo.cs") -join "`n" | Should Be "[assembly: SomethingOther(""1.0"")]`n[assembly: AssemblyVersion(""1.0.0.0"")]`n[assembly: AssemblyFileVersion(""1.0.0.0"")]"
+        (get-content "$PSScriptRoot\proj\AssemblyInfo.cs") -join "`n" | Should Be "[assembly: SomethingOther(""1.0"")]`n[assembly: AssemblyVersion(""4.3.2.1"")]`n[assembly: AssemblyFileVersion(""4.3.2.1"")]"
+        (get-content "$PSScriptRoot\proj\inner\AssemblyInfo.cs") -join "`n" | Should Be "[assembly: SomethingOther(""1.0"")]`n[assembly: AssemblyVersion(""1.0.0.0"")]`n[assembly: AssemblyFileVersion(""1.0.0.0"")]"
+        (get-content "$PSScriptRoot\proj\inner\OtherFile.cs") -join "`n" | Should Be "[assembly: SomethingOther(""1.0"")]`n[assembly: AssemblyVersion(""1.0.0.0"")]`n[assembly: AssemblyFileVersion(""1.0.0.0"")]"
+        (get-content "$PSScriptRoot\proj\OtherFile.cs") -join "`n" | Should Be "[assembly: SomethingOther(""1.0"")]`n[assembly: AssemblyVersion(""1.0.0.0"")]`n[assembly: AssemblyFileVersion(""1.0.0.0"")]"
+    }
 }
 
 Describe "Update-VersionInFile" {

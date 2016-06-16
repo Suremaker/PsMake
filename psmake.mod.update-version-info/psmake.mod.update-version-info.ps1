@@ -70,7 +70,11 @@ function Update-VersionInAssemblyInfo
 		
 		[Parameter()]
         # Assembly info file names
-        [string[]]$AssemblyInfoFileNames = ("AssemblyInfo.cs")
+        [string[]]$AssemblyInfoFileNames = ("AssemblyInfo.cs"),
+		
+		[Parameter()]
+		# Exclude paths
+		[string[]]$Exclude = @()
     ) 
     function Update-SourceVersion ($version)
     {
@@ -80,9 +84,20 @@ function Update-VersionInAssemblyInfo
         }
     }
 
+	function Globs-ToRegex([string[]] $globs){
+		return ($globs | %{ '^'+ ($_ -replace '\\','\\' -replace '\.','\.' -replace '\?','.' -replace '\*','.*') +'$' }) -join '|'
+	}
+
     function Update-AllAssemblyInfoFiles ( $version )
     {
-        get-childitem -Path $SolutionDirectory -recurse |? {$_.Name -in $AssemblyInfoFileNames} | Update-SourceVersion $Version
+        $items = get-childitem -Path $SolutionDirectory -recurse |? {$_.Name -in $AssemblyInfoFileNames}
+		if($Exclude.Length -gt 0){
+		
+			$exclusionPattern = Globs-ToRegex $Exclude
+			$items = $items |? {!($_.FullName -match $exclusionPattern)}
+		}
+		
+		$items | Update-SourceVersion $Version
     }
 
     Write-Status "Updating all AssemblyInfo.cs version to $version in $SolutionDirectory directory"
