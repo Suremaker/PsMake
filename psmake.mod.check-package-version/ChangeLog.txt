@@ -1,0 +1,8 @@
+PsMake Package Version Check Module
+========================================
+
+Version 1.0.0.0
+----------------------------------------
+Functions:
+(New) Ensure-SamePackageVersionIsUsed: checks that the same package version is used across the all project in the solution
+
