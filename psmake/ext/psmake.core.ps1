@@ -124,7 +124,7 @@ function Fetch-Package(
 
 	Write-Host "Fetching $name ver. $version..."
     if ($output) {        
-        if (-not(Test-Path $output)) { New-Item $output -ItemType Directory -Force -ErrorAction SilentlyContinue > null }
+        if (-not(Test-Path $output)) { New-Item $output -ItemType Directory -Force -ErrorAction SilentlyContinue > $null }
         $packageDir = $output
     } else {
         if (!$Context.MakeDirectory) {$packageDir='packages'}
