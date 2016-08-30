@@ -102,7 +102,9 @@ function Fetch-Package(
     # Package name to fetch
     $name,
     # Package version to fetch 
-    $version)
+    $version,
+    # Optional output directory for packages
+    $output)
 {
 	function Find-Package($packagesDir, $name, $version)
 	{
@@ -121,8 +123,13 @@ function Fetch-Package(
 	}
 
 	Write-Host "Fetching $name ver. $version..."
-	if (!$Context.MakeDirectory) {$packageDir='packages'}
-	else {$packageDir="$($Context.MakeDirectory)\packages"}
+    if ($output) {        
+        if (-not(Test-Path $output)) { New-Item $output -ItemType Directory -Force -ErrorAction SilentlyContinue > $null }
+        $packageDir = $output
+    } else {
+        if (!$Context.MakeDirectory) {$packageDir='packages'}
+	    else {$packageDir="$($Context.MakeDirectory)\packages"}
+    }	
 	
 	$package = Find-Package $packageDir $name $version
     if ($package -ne $null) 
