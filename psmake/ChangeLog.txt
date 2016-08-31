@@ -1,10 +1,15 @@
 PsMake
 ========================================
 
+Version 3.1.6.0
+----------------------------------------
+Core functions:
+(New) -RunSteps: Added optional RunSteps parameter to specify which steps should be run. Useful for debugging/local development
+
 Version 3.1.5.0
 ----------------------------------------
 Core functions:
-(Change) Fetch-Package: Added optional Output parameter to specify where packages should be installed
+(New) Fetch-Package: Added optional Output parameter to specify where packages should be installed
 
 Version 3.1.4.0
 ----------------------------------------
