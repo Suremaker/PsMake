@@ -48,6 +48,11 @@ C:\Project> .\psmake.ps1 -Scaffold build-test -MakeDirectory make
 
 Generates initial psmake files in 'make' directory.
 
+.EXAMPLE
+C:\Project> .\psmake.ps1 -RunSteps @("Step 1", "Step 2")
+
+Only run "Step 1" and "Step 2", all other steps will be skipped
+
 #>
 [CmdletBinding(DefaultParameterSetName="Make")]
 param (
@@ -137,7 +142,12 @@ param (
 	[Parameter()]
 	[Alias('ansi','ac')]
 	# Makes Write-Host to write ANSI escaped colors - use only if script is running on terminal supporting ANSI escape sequences.
-	[switch] $AnsiConsole
+	[switch] $AnsiConsole,
+
+	[Parameter()]	
+	[Alias('rs')]
+	# Run only the steps specified
+	[array]$RunSteps
 )
 
 function private:Build-Context()
@@ -207,7 +217,7 @@ function private:Build-Context()
 
 function private:Get-Version()
 {
-	return "3.1.4.0"
+	return "3.1.6.0"
 }
 
 function private:Load-MakeFile()
@@ -250,14 +260,35 @@ function private:Load-Environment()
 	return $envFiles
 }
 
+
+
 function private:Execute-Steps([array]$steps)
 {
+	function Should-RunStep([string]$name)
+	{	
+		if ($RunSteps) {
+			if ($RunSteps -contains $name) {			
+				return $true
+			} else {
+				return $false
+			}
+		} else {
+			return $true
+		}		
+	}
+
 	Write-Header "Executing steps..."
+	if ($RunSteps) { Write-Status "Only executing specified steps: $($RunSteps -join ", ")" }
 	for($i=0;$i -lt $steps.Length;$i++)
 	{
-		Write-Header -style "*" -header "$($i+1)/$($steps.Length): $($steps[$i].Name)..."
-		& ($steps[$i].Body) 
-		if (-not $?) { throw 'Last step terminated with error...' }
+		if (Should-RunStep ($steps[$i].Name)) {
+			Write-Header -style "*" -header "$($i+1)/$($steps.Length): $($steps[$i].Name)..."
+			& ($steps[$i].Body) 
+			if (-not $?) { throw 'Last step terminated with error...' }
+		} else {
+			Write-Header -style "*" -header "$($i+1)/$($steps.Length): $($steps[$i].Name)..."
+			Write-ShortStatus "Skipped - Specified RunSteps = $($RunSteps -join ", ")"
+		}		
 	}
 }
 
