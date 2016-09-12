@@ -1,6 +1,10 @@
 PsMake Packaging Module
 ========================================
 
+Version 1.1.0.0
+----------------------------------------
+(Change) Package-VSProject: added Platform parameter with default: AnyCPU
+
 Version 1.0.0.0
 ----------------------------------------
 Functions:

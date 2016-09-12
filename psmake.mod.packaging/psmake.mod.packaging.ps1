@@ -32,25 +32,30 @@ function Package-VSProject
         # Generate symbol package. Default: false
         [ValidateNotNull()]
         [bool]$Symbols = $false,
-		
-		[Parameter()]
-		# Overwrite package version with specified value. Default: null, which means no.
-		[string]$Version = $null,
-		
-		[Parameter()]
-		# Output directory. Default: .
-		[ValidateNotNullOrEmpty()]
-		[string]$Output = '.'
+        
+        [Parameter()]
+        # Overwrite package version with specified value. Default: null, which means no.
+        [string]$Version = $null,
+        
+        [Parameter()]
+        # Output directory. Default: .
+        [ValidateNotNullOrEmpty()]
+        [string]$Output = '.',
+        
+        [Parameter()]
+        # Project Platform. Default: AnyCPU
+        [ValidateNotNullOrEmpty()]
+        [string]$Platform = "AnyCPU"
     )
-	process {
-		$arguments = @("pack",$Project,"-Prop","Configuration=$Configuration","-NonInteractive","-Output",$Output)
-		if ($IncludeReferencedProjects) { $arguments += "-IncludeReferencedProjects"}
-		if ($Symbols) { $arguments += "-Symbols" }
-		if ($Version) { $arguments += "-Version"; $arguments += $Version; }
-		
-		Write-ShortStatus "Packaging: $Project..."
-		call $Context.NuGetExe @arguments
-	}
+    process {
+        $arguments = @("pack",$Project,"-Prop","Configuration=$Configuration","-Prop","Platform=$Platform","-NonInteractive","-Output",$Output)
+        if ($IncludeReferencedProjects) { $arguments += "-IncludeReferencedProjects"}
+        if ($Symbols) { $arguments += "-Symbols" }
+        if ($Version) { $arguments += "-Version"; $arguments += $Version; }
+        
+        Write-ShortStatus "Packaging: $Project..."
+        call $Context.NuGetExe @arguments
+    }
 }
 
 <#
@@ -72,35 +77,35 @@ function Package-DeployableNuSpec
         # NuSpec file path
         [ValidateNotNullOrEmpty()]
         [string]$Package,
-		
-		[Parameter()]
-		# Overwrite package version with specified value. Default: null, which means no.
-		[string]$Version = $null,
-		
-		[Parameter()]
-		# Output directory. Default: .
-		[ValidateNotNullOrEmpty()]
-		[string]$Output = '.',
-		
-		[Parameter()]
+        
+        [Parameter()]
+        # Overwrite package version with specified value. Default: null, which means no.
+        [string]$Version = $null,
+        
+        [Parameter()]
+        # Output directory. Default: .
+        [ValidateNotNullOrEmpty()]
+        [string]$Output = '.',
+        
+        [Parameter()]
         # No package analysis. Default: true
         [ValidateNotNull()]
         [bool]$NoPackageAnalysis = $true,
-		
-		[Parameter()]
+        
+        [Parameter()]
         # No default excluded. Default: false
         [ValidateNotNull()]
         [bool]$NoDefaultExcludes = $false
     )
-	process {
-		$arguments = "pack",$Package,"-NonInteractive","-Output",$Output
-		if ($NoPackageAnalysis) { $arguments += "-NoPackageAnalysis"}
-		if ($NoDefaultExcludes) { $arguments += "-NoDefaultExcludes"}
-		if ($Version) { $arguments += "-Version"; $arguments += $Version; }
-		
-		Write-ShortStatus "Packaging: $Package..."
-		call $Context.NuGetExe @arguments
-	}
+    process {
+        $arguments = "pack",$Package,"-NonInteractive","-Output",$Output
+        if ($NoPackageAnalysis) { $arguments += "-NoPackageAnalysis"}
+        if ($NoDefaultExcludes) { $arguments += "-NoDefaultExcludes"}
+        if ($Version) { $arguments += "-Version"; $arguments += $Version; }
+        
+        Write-ShortStatus "Packaging: $Package..."
+        call $Context.NuGetExe @arguments
+    }
 }
 
 <#
@@ -134,15 +139,15 @@ function Find-VSProjectsForPackaging
         # Projects to find. Default: *.csproj
         [ValidateNotNullOrEmpty()]
         [string]$Filter = '*.csproj',
-		
-		[Parameter()]
+        
+        [Parameter()]
         # Projects to exclude. Default: @()
         [ValidateNotNullOrEmpty()]
         [string[]]$Exclude = @()
     )
-	return Get-ChildItem -Path $Path -Filter $Filter -Recurse -Exclude $Exclude `
-		| Where-Object { Test-Path ($_.fullname -replace $_.Extension,'.nuspec')} `
-		| %{$_.fullname }
+    return Get-ChildItem -Path $Path -Filter $Filter -Recurse -Exclude $Exclude `
+        | Where-Object { Test-Path ($_.fullname -replace $_.Extension,'.nuspec')} `
+        | %{$_.fullname }
 }
 
 <#
@@ -176,12 +181,12 @@ function Find-NuSpecFiles
         # NuSpec files to find. Default: *.nuspec
         [ValidateNotNullOrEmpty()]
         [string]$Filter = '*.nuspec',
-		
-		[Parameter()]
+        
+        [Parameter()]
         # NuSpec to exclude. Default: @()
         [ValidateNotNullOrEmpty()]
         [string[]]$Exclude = @()
     )
-	return Get-ChildItem -Path $Path -Filter $Filter -Recurse -Exclude $Exclude `
-		| %{$_.fullname }
+    return Get-ChildItem -Path $Path -Filter $Filter -Recurse -Exclude $Exclude `
+        | %{$_.fullname }
 }
