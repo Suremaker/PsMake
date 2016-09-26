@@ -1,5 +1,5 @@
 $psmake = "$PSScriptRoot\..\psmake\psmake.ps1"
-$expectedVersion = '3.1.6.0'
+$expectedVersion = '3.1.7.0'
 
 <# Disable Write-Host in tested code #>
 function Write-Host

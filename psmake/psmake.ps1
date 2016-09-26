@@ -217,7 +217,7 @@ function private:Build-Context()
 
 function private:Get-Version()
 {
-	return "3.1.6.0"
+	return "3.1.7.0"
 }
 
 function private:Load-MakeFile()
@@ -295,8 +295,9 @@ function private:Execute-Steps([array]$steps)
 	}
 }
 
+$overall_sw = [Diagnostics.Stopwatch]::StartNew()
 try
-{
+{	
 	$ErrorActionPreference = 'Stop'
 	if($AnsiConsole) {. $PSScriptRoot\ext\psmake.ansi.ps1}
 	. $PSScriptRoot\ext\psmake.core.ps1
@@ -318,6 +319,7 @@ try
 
 		Write-Host -ForegroundColor 'Green' "Make finished :)"
 	}
+	
 }
 catch [Exception]
 {
@@ -329,4 +331,6 @@ catch [Exception]
 finally
 {
 	if($AnsiConsole) { remove-item function:Write-Host }
+	$overall_sw.Stop()    
+	Write-ShortStatus "PsMake run duration: $($overall_sw.Elapsed)"
 }
