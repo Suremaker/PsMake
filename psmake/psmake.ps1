@@ -283,8 +283,11 @@ function private:Execute-Steps([array]$steps)
 	{
 		if (Should-RunStep ($steps[$i].Name)) {
 			Write-Header -style "*" -header "$($i+1)/$($steps.Length): $($steps[$i].Name)..."
-			& ($steps[$i].Body) 
+			$sw = [Diagnostics.Stopwatch]::StartNew()
+			& ($steps[$i].Body) 			 
 			if (-not $?) { throw 'Last step terminated with error...' }
+			$sw.Stop()    
+        	Write-ShortStatus "$($steps[$i].Name) run duration: $($sw.Elapsed)"
 		} else {
 			Write-Header -style "*" -header "$($i+1)/$($steps.Length): $($steps[$i].Name)..."
 			Write-ShortStatus "Skipped - Specified RunSteps = $($RunSteps -join ", ")"
