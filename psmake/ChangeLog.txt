@@ -1,5 +1,8 @@
 PsMake
 ========================================
+Version 3.1.7.0
+----------------------------------------
+General: Added run duration for Overall script and for each step.
 
 Version 3.1.6.0
 ----------------------------------------
