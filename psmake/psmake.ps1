@@ -287,7 +287,7 @@ function private:Execute-Steps([array]$steps)
 			& ($steps[$i].Body) 			 
 			if (-not $?) { throw 'Last step terminated with error...' }
 			$sw.Stop()    
-        	Write-ShortStatus "$($steps[$i].Name) run duration: $($sw.Elapsed)"
+			Write-ShortStatus "$($steps[$i].Name) run duration: $($sw.Elapsed)"
 		} else {
 			Write-Header -style "*" -header "$($i+1)/$($steps.Length): $($steps[$i].Name)..."
 			Write-ShortStatus "Skipped - Specified RunSteps = $($RunSteps -join ", ")"
@@ -330,7 +330,7 @@ catch [Exception]
 }
 finally
 {
-	if($AnsiConsole) { remove-item function:Write-Host }
 	$overall_sw.Stop()    
 	Write-ShortStatus "PsMake run duration: $($overall_sw.Elapsed)"
+	if($AnsiConsole) { remove-item function:Write-Host }	
 }

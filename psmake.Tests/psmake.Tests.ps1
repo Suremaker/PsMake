@@ -46,7 +46,8 @@ Describe "List-AvailableModules" {
     It "Should print that it is listing available modules" {
         
         $output = Capture-WriteHost "$psmake -lam -NuGetSource $PSScriptRoot\repo1"
-        $output -join '\r\n' | Should Be 'Listing available modules...'
+        $output -join '\r\n' | Should Match 'Listing available modules...'
+        $output -join '\r\n' | Should Match 'PsMake run duration:'
     }
 }
 
@@ -142,7 +143,8 @@ Describe "List-Modules" {
         & $psmake -md $md -AddModule -ModuleName 'psmake.mod.test' -ModuleVersion '1.0.0.0' -NuGetsource "$PSScriptRoot\repo1"
 
         $output = Capture-WriteHost "$psmake -lm -md $md"
-        $output -join '\r\n' | Should Be 'Reading modules...'
+        $output -join '\r\n' | Should Match 'Reading modules...'
+        $output -join '\r\n' | Should Match 'PsMake run duration:'
     }
 }
 
@@ -168,7 +170,7 @@ Describe "Update-Modules" {
         Set-Content "$md\Modules.ps1" "Write-Output @{'psmake.mod.test-other'='2.0.2.9';'psmake.mod.test'='1.0.0.1'}" | Out-Null        
 
         $output = Capture-WriteHost "$psmake -md $md -uam -NuGetsource '$PSScriptRoot\repo1;$PSScriptRoot\repo2'"
-        $output -join "`r`n" | Should Be @"
+        $output -join "`r`n" | Should Match (@"
 Listing available modules...
 Reading modules...
 Updating modules...
@@ -178,7 +180,8 @@ Fetching psmake.mod.test-other ver. 2.0.3.0...
 Installing 'psmake.mod.test-other 2.0.3.0'.
 Successfully installed 'psmake.mod.test-other 2.0.3.0'.
 Module psmake.mod.test ver. 1.0.0.1 is up to date.
-"@
+"@).Replace('\','\\') 
+        $output -join '\r\n' | Should Match 'PsMake run duration:'
     }
 }
 
