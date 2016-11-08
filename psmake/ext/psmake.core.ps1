@@ -17,11 +17,11 @@ function Call-Program (
     # Command arguments.
     $args) 
 {
-	Write-Host $command $args -ForegroundColor "Gray"
-	$ErrorActionPreference = "continue" #don't throw if anything is written on stderr
-	& $command $args 2>&1  | Write-Host -ForegroundColor "Magenta"
-	#throw if application exit code is not 0
-	if ($LastExitCode -ne 0) { throw "A program execution was not successful (Exit code: $LASTEXITCODE)." }
+    Write-Host $command $args -ForegroundColor "Gray"
+    $ErrorActionPreference = "continue" #don't throw if anything is written on stderr
+    & $command $args 2>&1  | Write-Host -ForegroundColor "Magenta"
+    #throw if application exit code is not 0
+    if ($LastExitCode -ne 0) { throw "A program execution was not successful (Exit code: $LASTEXITCODE)." }
 }
 
 set-alias call Call-Program
@@ -43,11 +43,11 @@ function Write-Header(
     # Header border style. '-' if not specified 
     $style="-")
 {
-	Write-Host
-	Write-Host "$($style * 60)" -foregroundcolor "DarkGreen"
-	Write-Host "$style $header" -foregroundcolor "Green"
-	Write-Host "$($style * 60)" -foregroundcolor "DarkGreen"
-	Write-Host
+    Write-Host
+    Write-Host "$($style * 60)" -foregroundcolor "DarkGreen"
+    Write-Host "$style $header" -foregroundcolor "Green"
+    Write-Host "$($style * 60)" -foregroundcolor "DarkGreen"
+    Write-Host
 }
 
 <#
@@ -66,10 +66,10 @@ function Write-Status(
     # Status border style. '-' if not specified 
     $style="-")
 {
-	Write-Host
-	Write-Host "$style $text" -foregroundcolor "Cyan"
-	Write-Host "$($style * 60)" -foregroundcolor "DarkCyan"
-	Write-Host
+    Write-Host
+    Write-Host "$style $text" -foregroundcolor "Cyan"
+    Write-Host "$($style * 60)" -foregroundcolor "DarkCyan"
+    Write-Host
 }
 
 <#
@@ -87,7 +87,7 @@ function Write-ShortStatus(
     # Status border style. '-' if not specified 
     $style="-")
 {
-	Write-Host "$style $text" -foregroundcolor "Cyan"
+    Write-Host "$style $text" -foregroundcolor "Cyan"
 }
 
 <#
@@ -106,12 +106,12 @@ function Fetch-Package(
     # Optional output directory for packages
     $output)
 {
-	function Find-Package($packagesDir, $name, $version)
-	{
-		$versionComponents = $version -split '\.'
+    function Find-PackageLocally($packagesDir, $name, $version)
+    {
+        $versionComponents = $version -split '\.'
         while ($versionComponents.Length -le 4) { $versionComponents += 0 }
 
-		for($i = $versionComponents.Length-1; $i -ge 0; $i--)
+        for($i = $versionComponents.Length-1; $i -ge 0; $i--)
         {
             $path = (([string[]]"$packageDir\$name") + $versionComponents[0..$i]) -join '.'            
             if(Test-Path $path) { return $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($path) }
@@ -120,28 +120,27 @@ function Fetch-Package(
             if ([System.Int32]::TryParse($versionComponents[$i],[ref]$num) -and ($num -ne 0)) { break; }
         }
         return $null
-	}
+    }
 
-	Write-Host "Fetching $name ver. $version..."
-    if ($output) {        
+    Write-Host "Fetching $name ver. $version..."
+    if ($output) {
         if (-not(Test-Path $output)) { New-Item $output -ItemType Directory -Force -ErrorAction SilentlyContinue > $null }
         $packageDir = $output
     } else {
         if (!$Context.MakeDirectory) {$packageDir='packages'}
-	    else {$packageDir="$($Context.MakeDirectory)\packages"}
-    }	
-	
-	$package = Find-Package $packageDir $name $version
+        else {$packageDir="$($Context.MakeDirectory)\packages"}
+    }    
+    
+    $package = Find-PackageLocally $packageDir $name $version
     if ($package -ne $null) 
     {
         $name = split-path $package -leaf
         Write-Host "Found installed package: $name"
         return $package
-    }	
+    }
 
-    $nuArgs=$Context.NuGetArgs
-	call $Context.NugetExe install $name -Version $version -OutputDirectory "$packageDir" -Verbosity detailed @nuArgs
-	return Find-Package $packageDir $name $version
+    $PsMakePackageProvider.InstallPackage($name,$version,"$packageDir")
+    return Find-PackageLocally $packageDir $name $version
 }
 
 <# 
@@ -169,8 +168,8 @@ Loads 'psmake.mod.my-module' module, making all it's methods available in curren
 #>
 function Require-Module([string] $moduleName)
 {
-	if(!$Modules.Contains($moduleName)) { throw "Module $moduleName is not added. Please add it first with psmake.ps1 -AddModule."}
-	return $Modules.Get_Item($moduleName).File
+    if(!$Modules.Contains($moduleName)) { throw "Module $moduleName is not added. Please add it first with psmake.ps1 -AddModule."}
+    return $Modules.Get_Item($moduleName).File
 
 }
 
@@ -182,15 +181,15 @@ set-alias require Require-Module
 Makes a script-block for remote or local execution, that would allow to access all psmake core methods and $Context variable.
 #>
 function Make-ScriptBlock([string]$code, [boolean]$remote=$true)
-{	
+{    
     if ($remote) 
     { 
         [string]$core = require 'psmake.core'
-		$envPath = "$($Context.MakeDirectory)\Environment.ps1"
-		$envPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($envPath)
-		$env=""
-		if(Test-Path $envPath) { $env=" . $envPath $($Context.Target);"}
+        $envPath = "$($Context.MakeDirectory)\Environment.ps1"
+        $envPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($envPath)
+        $env=""
+        if(Test-Path $envPath) { $env=" . $envPath $($Context.Target);"}
         $code = "`$Context=`$using:Context; `$Modules=`$using:Modules; . $core;$env $code"
     }
-	return [scriptblock]::Create($code)
+    return [scriptblock]::Create($code)
 }

@@ -57,15 +57,8 @@ function Add-Module([string]$name,[string]$version)
 function List-AvailableModules($showIdOnly = $false)
 {
     Write-Host "Listing available modules..."
-    $args = $Context.NuGetArgs
-    $result = & $Context.NuGetExe list psmake.mod. -NonInteractive @args
-
-    $modules = @{}
-    $result | % { 
-		$p = $_ -split ' '; 
-		if ($p[1] -match '^[0-9]+(\.[0-9]+){0,3}$') { $modules.Add($p[0],$p[1]) }
-	}
-	if ($showIdOnly) { return $modules.Keys } 
+    $modules = $PsMakePackageProvider.FindPackage('psmake.mod.*')
+    if ($showIdOnly) { return $modules.Keys } 
     return $modules
 }
 

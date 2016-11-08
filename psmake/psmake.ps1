@@ -144,10 +144,16 @@ param (
 	# Makes Write-Host to write ANSI escaped colors - use only if script is running on terminal supporting ANSI escape sequences.
 	[switch] $AnsiConsole,
 
-	[Parameter()]	
+	[Parameter(ParameterSetName="Make")]
 	[Alias('rs')]
 	# Run only the steps specified
-	[array]$RunSteps
+	[array]$RunSteps,
+
+	[Parameter()]
+	[Alias('pp')]
+	[ValidateSet('nugetexe','powershell')]
+	# Specified package provider. By default it is 'nugetexe'
+	[string]$PackageProvider = 'nugetexe'
 )
 
 function private:Build-Context()
@@ -157,7 +163,7 @@ function private:Build-Context()
 		$path = "$MakeDirectory\Defaults.ps1"
 
 		if (Test-Path $path) { return & $path }
-		return @{}		
+		return @{}
 	}
 
 	function Add-PropertyValue($object, $name, $value)
@@ -177,6 +183,7 @@ function private:Build-Context()
 	function Locate-NuGetExe()
 	{
 		if (Test-Path '.nuget\NuGet.exe') { return '.nuget\NuGet.exe' }
+		if (Test-Path '.\NuGet.exe') { return '.\NuGet.exe' }
 		return 'NuGet.exe'
 	}
 
@@ -260,21 +267,19 @@ function private:Load-Environment()
 	return $envFiles
 }
 
-
-
 function private:Execute-Steps([array]$steps)
 {
 	function Should-RunStep([string]$name)
-	{	
+	{
 		if ($RunSteps) {
-			if ($RunSteps -contains $name) {			
+			if ($RunSteps -contains $name) {
 				return $true
 			} else {
 				return $false
 			}
 		} else {
 			return $true
-		}		
+		}
 	}
 
 	Write-Header "Executing steps..."
@@ -284,24 +289,33 @@ function private:Execute-Steps([array]$steps)
 		if (Should-RunStep ($steps[$i].Name)) {
 			Write-Header -style "*" -header "$($i+1)/$($steps.Length): $($steps[$i].Name)..."
 			$sw = [Diagnostics.Stopwatch]::StartNew()
-			& ($steps[$i].Body) 			 
+			& ($steps[$i].Body)
 			if (-not $?) { throw 'Last step terminated with error...' }
 			$sw.Stop()    
 			Write-ShortStatus "$($steps[$i].Name) run duration: $($sw.Elapsed)"
 		} else {
 			Write-Header -style "*" -header "$($i+1)/$($steps.Length): $($steps[$i].Name)..."
 			Write-ShortStatus "Skipped - Specified RunSteps = $($RunSteps -join ", ")"
-		}		
+		}
 	}
+}
+
+function private:Get-PackageProvider()
+{
+	if($PackageProvider -eq 'nugetexe') {return "$PSScriptRoot\ext\psmake.pp.nuget.ps1"}
+	if($PackageProvider -eq 'powershell') {return "$PSScriptRoot\ext\psmake.pp.powershell.ps1"}
+	throw "Unknown package provider: $PackageProvider"
 }
 
 $overall_sw = [Diagnostics.Stopwatch]::StartNew()
 try
-{	
+{
 	$ErrorActionPreference = 'Stop'
+	$ProgressPreference = 'SilentlyContinue'
 	if($AnsiConsole) {. $PSScriptRoot\ext\psmake.ansi.ps1}
 	. $PSScriptRoot\ext\psmake.core.ps1
 	$Context = Build-Context
+	$PsMakePackageProvider = . $(Get-PackageProvider)
 
 	if ($ListAvailableModules) { . $PSScriptRoot\ext\psmake.modules.ps1; List-AvailableModules $ShowIdOnly; }
 	elseif ($ListModules) { . $PSScriptRoot\ext\psmake.modules.ps1; List-Modules $ShowIdOnly; }
