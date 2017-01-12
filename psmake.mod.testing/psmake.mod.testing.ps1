@@ -38,7 +38,12 @@ function Define-NUnitTests
         [ValidateNotNullOrEmpty()]
         [ValidatePattern("^[0-9]+(\.[0-9]+){0,3}$")]
         [Alias('RunnerVersion')]
-        [string]$NUnitVersion = "2.6.4"
+        [string]$NUnitVersion = "2.6.4",
+
+        [Parameter()]
+        # Additional parameters. By default it is: @('/framework:4.0')
+        [ValidateNotNull()]
+        [string[]]$AdditionalParameters = @('/framework:4.0')
     )
 
     . $PSScriptRoot\internals.ps1
@@ -53,7 +58,7 @@ function Define-NUnitTests
         Runner='tools\nunit-console.exe';
         GetRunnerArgs={
             param([PSObject]$Definition, [string]$ReportDirectory)
-            return $Definition.Assemblies + "/nologo", "/noshadow", "/domain:single", "/trace=Error", "/xml:$ReportDirectory\$($Definition.ReportName).xml"
+            return $Definition.Assemblies + $AdditionalParameters + "/nologo", "/noshadow", "/domain:single", "/trace=Error", "/xml:$ReportDirectory\$($Definition.ReportName).xml"
         };}
 }
 
@@ -102,7 +107,12 @@ function Define-NUnit3Tests
         [Parameter()]
         # ReportFormat version. By default it is: nunit3
         [ValidateNotNullOrEmpty()]
-        [string]$ReportFormat = "nunit3"
+        [string]$ReportFormat = "nunit3",
+
+        [Parameter()]
+        # Additional parameters. By default it is: @()
+        [ValidateNotNull()]
+        [string[]]$AdditionalParameters = @()
     )
 
     . $PSScriptRoot\internals.ps1
@@ -118,7 +128,7 @@ function Define-NUnit3Tests
         ReportFormat=$ReportFormat;
         GetRunnerArgs={
             param([PSObject]$Definition, [string]$ReportDirectory)
-            return $Definition.Assemblies + "--noheader", "--result=$ReportDirectory\$($Definition.ReportName).xml;format=$($Definition.ReportFormat)"
+            return $Definition.Assemblies + $AdditionalParameters + "--noheader", "--result=$ReportDirectory\$($Definition.ReportName).xml;format=$($Definition.ReportFormat)"
         };}
 }
 
@@ -161,7 +171,12 @@ function Define-MbUnitTests
         # GallioBundle version. By default it is: 3.4.14
         [ValidateNotNullOrEmpty()]
         [ValidatePattern("^[0-9]+(\.[0-9]+){0,3}$")]
-        [string]$MbUnitVersion = "3.4.14"
+        [string]$MbUnitVersion = "3.4.14",
+
+        [Parameter()]
+        # Additional parameters. By default it is: @()
+        [ValidateNotNull()]
+        [string[]]$AdditionalParameters = @()
     )
 
     . $PSScriptRoot\internals.ps1
@@ -176,7 +191,7 @@ function Define-MbUnitTests
         Runner='bin\Gallio.Echo.exe';
         GetRunnerArgs={
             param([PSObject]$Definition, [string]$ReportDirectory) 
-            return $Definition.Assemblies + "/no-logo", "/rt:Xml", "/rd:$ReportDirectory", "/rnf:$($Definition.ReportName)" 
+            return $Definition.Assemblies + $AdditionalParameters + "/no-logo", "/rt:Xml", "/rd:$ReportDirectory", "/rnf:$($Definition.ReportName)" 
         };}
 }
 
@@ -218,7 +233,12 @@ function Define-MsTests
         [Parameter()]
         # Visual Studio version used to find mstest.exe. The default is: 12.0
         [ValidateNotNullOrEmpty()]
-        [string]$VisualStudioVersion = "12.0"
+        [string]$VisualStudioVersion = "12.0",
+
+        [Parameter()]
+        # Additional parameters. By default it is: @()
+        [ValidateNotNull()]
+        [string[]]$AdditionalParameters = @()
     )
 
     . $PSScriptRoot\internals.ps1
@@ -234,7 +254,7 @@ function Define-MsTests
         GetRunnerArgs={
             param([PSObject]$Definition, [string]$ReportDirectory) 
             [string[]] $asms = $Definition.Assemblies | %{ "/testcontainer:$_"}
-            return ($asms + "/nologo", "/resultsfile:$ReportDirectory\$($Definition.ReportName).trx") 
+            return ($asms + $AdditionalParameters + "/nologo", "/resultsfile:$ReportDirectory\$($Definition.ReportName).trx") 
         };}
 }
 
@@ -278,7 +298,12 @@ function Define-XUnitTests
         [ValidateNotNullOrEmpty()]
         [ValidatePattern("^[0-9]+(\.[0-9]+){0,3}$")]
         [Alias('RunnerVersion')]
-        [string]$XUnitVersion = "2.0.0"
+        [string]$XUnitVersion = "2.0.0",
+
+        [Parameter()]
+        # Additional parameters. By default it is: @()
+        [ValidateNotNull()]
+        [string[]]$AdditionalParameters = @()
     )
 
     . $PSScriptRoot\internals.ps1
@@ -293,7 +318,7 @@ function Define-XUnitTests
         Runner='tools\xunit.console.exe';
         GetRunnerArgs={
             param([PSObject]$Definition, [string]$ReportDirectory)
-            return $Definition.Assemblies + "-nologo", "-noshadow", "-quiet", "-nunit", "$ReportDirectory\$($Definition.ReportName).xml"
+            return $Definition.Assemblies + $AdditionalParameters + "-nologo", "-noshadow", "-quiet", "-nunit", "$ReportDirectory\$($Definition.ReportName).xml"
         };}
 }
 
