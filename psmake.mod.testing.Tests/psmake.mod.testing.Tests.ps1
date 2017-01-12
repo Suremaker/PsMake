@@ -71,7 +71,9 @@ Describe "Define-NUnitTests" {
     It "It should define tests with default additional parameters" {
         $def = Define-NUnitTests -GroupName 'my group' -TestAssembly "some.dll"
         $def | Should Not Be $null
-        $def.AdditionalParameters | Should Be @('/framework:4.0')
+        $def.AdditionalParameters.GetType() | Should Be 'string[]'
+        $def.AdditionalParameters.Length | Should Be 1
+        $def.AdditionalParameters[0] | Should Be '/framework:4.0'
     }
 
     It "It should define tests with specified runner version" {
@@ -133,7 +135,8 @@ Describe "Define-NUnit3Tests" {
     It "It should define tests with default additional parameters" {
         $def = Define-NUnit3Tests -GroupName 'my group' -TestAssembly "some.dll"
         $def | Should Not Be $null
-        $def.AdditionalParameters | Should Be @()
+        $def.AdditionalParameters.GetType() | Should Be 'string[]'
+        $def.AdditionalParameters.Length | Should Be 0
     }
 
     It "It should define tests with specified runner version" {
@@ -195,7 +198,8 @@ Describe "Define-MbUnitTests" {
     It "It should define tests with default additional parameters" {
         $def = Define-MbUnitTests -GroupName 'my group' -TestAssembly "some.dll"
         $def | Should Not Be $null
-        $def.AdditionalParameters | Should Be @()
+        $def.AdditionalParameters.GetType() | Should Be 'string[]'
+        $def.AdditionalParameters.Length | Should Be 0
     }
 
     It "It should define tests with specified runner version" {
@@ -257,7 +261,8 @@ Describe "Define-MsTests" {
     It "It should define tests with default additional parameters" {
         $def = Define-MsTests -GroupName 'my group' -TestAssembly "some.dll"
         $def | Should Not Be $null
-        $def.AdditionalParameters | Should Be @()
+        $def.AdditionalParameters.GetType() | Should Be 'string[]'
+        $def.AdditionalParameters.Length | Should Be 0
     }
 
     It "It should define tests with specified runner version" {
@@ -319,7 +324,8 @@ Describe "Define-XUnitTests" {
     It "It should define tests with default additional parameters" {
         $def = Define-XUnitTests -GroupName 'my group' -TestAssembly "some.dll"
         $def | Should Not Be $null
-        $def.AdditionalParameters | Should Be @()
+        $def.AdditionalParameters.GetType() | Should Be 'string[]'
+        $def.AdditionalParameters.Length | Should Be 0
     }
 
     It "It should define tests with specified runner version" {
