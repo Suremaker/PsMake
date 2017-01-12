@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>psmake.mod.testing</id>
-    <version>1.2.0.0</version>
+    <version>1.2.1.0</version>
     <title>PSMake Testing mod</title>
     <authors>Wojciech Kotlarski</authors>
     <owners>Wojciech Kotlarski</owners>
@@ -19,6 +19,7 @@
 (Changed) Define-MbUnitTests: added $AdditionalParameters = @()
 (Changed) Define-MsTests: added $AdditionalParameters = @()
 (Changed) Define-XUnitTests: added $AdditionalParameters = @()
+(Fix) Define-*Tests: fixed passing additional parameters to the runner
 </releaseNotes>
   </metadata>
   <files>

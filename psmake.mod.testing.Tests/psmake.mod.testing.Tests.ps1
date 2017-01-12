@@ -68,6 +68,12 @@ Describe "Define-NUnitTests" {
         $def.PackageVersion | Should Be '2.6.4'
     }
 
+    It "It should define tests with default additional parameters" {
+        $def = Define-NUnitTests -GroupName 'my group' -TestAssembly "some.dll"
+        $def | Should Not Be $null
+        $def.AdditionalParameters | Should Be @('/framework:4.0')
+    }
+
     It "It should define tests with specified runner version" {
         $def = Define-NUnitTests -GroupName 'my group' -NUnitVersion '2.6.2' -TestAssembly "some.dll"
         $def | Should Not Be $null
@@ -122,6 +128,12 @@ Describe "Define-NUnit3Tests" {
         $def = Define-NUnit3Tests -GroupName 'my group' -TestAssembly "some.dll"
         $def | Should Not Be $null
         $def.PackageVersion | Should Be '3.2.1'
+    }
+
+    It "It should define tests with default additional parameters" {
+        $def = Define-NUnit3Tests -GroupName 'my group' -TestAssembly "some.dll"
+        $def | Should Not Be $null
+        $def.AdditionalParameters | Should Be @()
     }
 
     It "It should define tests with specified runner version" {
@@ -180,6 +192,12 @@ Describe "Define-MbUnitTests" {
         $def.PackageVersion | Should Be '3.4.14'
     }
 
+    It "It should define tests with default additional parameters" {
+        $def = Define-MbUnitTests -GroupName 'my group' -TestAssembly "some.dll"
+        $def | Should Not Be $null
+        $def.AdditionalParameters | Should Be @()
+    }
+
     It "It should define tests with specified runner version" {
         $def = Define-MbUnitTests -GroupName 'my group' -MbUnitVersion '3.4.15.0' -TestAssembly "some.dll"
         $def | Should Not Be $null
@@ -236,6 +254,12 @@ Describe "Define-MsTests" {
         $def.Runner | Should Match '12\.0'
     }
 
+    It "It should define tests with default additional parameters" {
+        $def = Define-MsTests -GroupName 'my group' -TestAssembly "some.dll"
+        $def | Should Not Be $null
+        $def.AdditionalParameters | Should Be @()
+    }
+
     It "It should define tests with specified runner version" {
         $def = Define-MsTests -GroupName 'my group' -VisualStudioVersion '11.0' -TestAssembly "some.dll"
         $def | Should Not Be $null
@@ -290,6 +314,12 @@ Describe "Define-XUnitTests" {
         $def = Define-XUnitTests -GroupName 'my group' -TestAssembly "some.dll"
         $def | Should Not Be $null
         $def.PackageVersion | Should Match '2\.0\.0'
+    }
+
+    It "It should define tests with default additional parameters" {
+        $def = Define-XUnitTests -GroupName 'my group' -TestAssembly "some.dll"
+        $def | Should Not Be $null
+        $def.AdditionalParameters | Should Be @()
     }
 
     It "It should define tests with specified runner version" {

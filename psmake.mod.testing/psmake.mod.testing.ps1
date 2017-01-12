@@ -56,9 +56,10 @@ function Define-NUnitTests
         ReportName=$ReportName;
         Assemblies=[string[]](Resolve-TestAssemblies $TestAssembly);
         Runner='tools\nunit-console.exe';
+        AdditionalParameters=$AdditionalParameters;
         GetRunnerArgs={
             param([PSObject]$Definition, [string]$ReportDirectory)
-            return $Definition.Assemblies + $AdditionalParameters + "/nologo", "/noshadow", "/domain:single", "/trace=Error", "/xml:$ReportDirectory\$($Definition.ReportName).xml"
+            return $Definition.Assemblies + $Definition.AdditionalParameters + "/nologo", "/noshadow", "/domain:single", "/trace=Error", "/xml:$ReportDirectory\$($Definition.ReportName).xml"
         };}
 }
 
@@ -126,9 +127,10 @@ function Define-NUnit3Tests
         Assemblies=[string[]](Resolve-TestAssemblies $TestAssembly);
         Runner='tools\nunit3-console.exe';
         ReportFormat=$ReportFormat;
+        AdditionalParameters=$AdditionalParameters;
         GetRunnerArgs={
             param([PSObject]$Definition, [string]$ReportDirectory)
-            return $Definition.Assemblies + $AdditionalParameters + "--noheader", "--result=$ReportDirectory\$($Definition.ReportName).xml;format=$($Definition.ReportFormat)"
+            return $Definition.Assemblies + $Definition.AdditionalParameters + "--noheader", "--result=$ReportDirectory\$($Definition.ReportName).xml;format=$($Definition.ReportFormat)"
         };}
 }
 
@@ -189,9 +191,10 @@ function Define-MbUnitTests
         ReportName=$ReportName;
         Assemblies=[string[]](Resolve-TestAssemblies $TestAssembly);
         Runner='bin\Gallio.Echo.exe';
+        AdditionalParameters=$AdditionalParameters;
         GetRunnerArgs={
             param([PSObject]$Definition, [string]$ReportDirectory) 
-            return $Definition.Assemblies + $AdditionalParameters + "/no-logo", "/rt:Xml", "/rd:$ReportDirectory", "/rnf:$($Definition.ReportName)" 
+            return $Definition.Assemblies + $Definition.AdditionalParameters + "/no-logo", "/rt:Xml", "/rd:$ReportDirectory", "/rnf:$($Definition.ReportName)" 
         };}
 }
 
@@ -251,10 +254,11 @@ function Define-MsTests
         ReportName=$ReportName;
         Assemblies=[string[]](Resolve-TestAssemblies $TestAssembly);
         Runner="${env:ProgramFiles(x86)}\Microsoft Visual Studio $VisualStudioVersion\Common7\IDE\mstest.exe";
+        AdditionalParameters=$AdditionalParameters;
         GetRunnerArgs={
             param([PSObject]$Definition, [string]$ReportDirectory) 
             [string[]] $asms = $Definition.Assemblies | %{ "/testcontainer:$_"}
-            return ($asms + $AdditionalParameters + "/nologo", "/resultsfile:$ReportDirectory\$($Definition.ReportName).trx") 
+            return ($asms + $Definition.AdditionalParameters + "/nologo", "/resultsfile:$ReportDirectory\$($Definition.ReportName).trx") 
         };}
 }
 
@@ -316,9 +320,10 @@ function Define-XUnitTests
         ReportName=$ReportName;
         Assemblies=[string[]](Resolve-TestAssemblies $TestAssembly);
         Runner='tools\xunit.console.exe';
+        AdditionalParameters=$AdditionalParameters;
         GetRunnerArgs={
             param([PSObject]$Definition, [string]$ReportDirectory)
-            return $Definition.Assemblies + $AdditionalParameters + "-nologo", "-noshadow", "-quiet", "-nunit", "$ReportDirectory\$($Definition.ReportName).xml"
+            return $Definition.Assemblies + $Definition.AdditionalParameters + "-nologo", "-noshadow", "-quiet", "-nunit", "$ReportDirectory\$($Definition.ReportName).xml"
         };}
 }
 

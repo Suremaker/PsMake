@@ -1,6 +1,10 @@
 PsMake Testing Module
 ========================================
 
+Version 1.2.1.0
+----------------------------------------
+(Fix) Define-*Tests: fixed passing additional parameters to the runner
+
 Version 1.2.0.0
 ----------------------------------------
 (Changed) Define-NUnitTests: added $AdditionalParameters = @('/framework:4.0')
