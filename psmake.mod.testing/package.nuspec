@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>psmake.mod.testing</id>
-    <version>1.2.1.0</version>
+    <version>1.3.0.0</version>
     <title>PSMake Testing mod</title>
     <authors>Wojciech Kotlarski</authors>
     <owners>Wojciech Kotlarski</owners>
@@ -12,14 +12,9 @@
     <copyright>Copyright © Wojciech Kotlarski 2015-2017</copyright>
     <tags>powershell make build CI testing nunit mbunit mstest vstest</tags>
     <language>en-US</language>
-    <description>A testing module for PsMake, allowing to execute nunit/nunit3/mbunit/mstest/xunit tests with optional coverage check</description>
+    <description>A testing module for PsMake, allowing to execute nunit/nunit3/mbunit/mstest/xunit/dotnet tests with optional coverage check</description>
     <releaseNotes>Functions:
-(Changed) Define-NUnitTests: added $AdditionalParameters = @('/framework:4.0')
-(Changed) Define-NUnit3Tests: added $AdditionalParameters = @()
-(Changed) Define-MbUnitTests: added $AdditionalParameters = @()
-(Changed) Define-MsTests: added $AdditionalParameters = @()
-(Changed) Define-XUnitTests: added $AdditionalParameters = @()
-(Fix) Define-*Tests: fixed passing additional parameters to the runner
+(New) Define-DotnetTests: definition for net core tests
 </releaseNotes>
   </metadata>
   <files>

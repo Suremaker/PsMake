@@ -46,6 +46,49 @@ $PassingNUnit31 = "$PSScriptRoot\TestSolution\Passing.NUnit3.Tests1\bin\Release\
 $PassingNUnit32 = "$PSScriptRoot\TestSolution\Passing.NUnit3.Tests2\bin\Release\Passing.NUnit3.Tests2.dll"
 $FailingNUnit3 = "$PSScriptRoot\TestSolution\Failing.NUnit3.Tests\bin\Release\Failing.NUnit3.Tests.dll"
 
+Describe "Define-DotnetTests" {
+
+    It "It should use project name as group name" {
+        $def = Define-DotnetTests -TestProject "some_dir/some_project"
+        $def | Should Not Be $null
+        $def.GroupName | Should Be 'some_project'
+        $def.ReportName | Should Be 'some_project'
+    }
+
+    It "It should define tests with default additional parameters" {
+        $def = Define-DotnetTests -TestProject "some_project"
+        $def | Should Not Be $null
+        $def.AdditionalParameters.GetType() | Should Be 'string[]'
+        $def.AdditionalParameters.Length | Should Be 0
+    }
+
+    It "It should allow to specify one assembly" {
+        $def = Define-DotnetTests -TestProject "some_dir/some_project"
+        $def | Should Not Be $null
+        $def.Project.GetType() | Should Be 'string'
+        $def.Project | Should Be "some_dir/some_project"
+    }
+
+    It "It should allow to specify multiple projects" {
+        $def = Define-DotnetTests -TestProject "some_dir/some_project", "some_dir/other_project"
+        $def | Should Not Be $null
+        $def.Length | Should Be 2
+        $def[0].Project | Should Be "some_dir/some_project"
+        $def[0].GroupName | Should Be "some_project"
+        $def[0].ReportName | Should Be "some_project"
+        $def[1].Project | Should Be "some_dir/other_project"
+        $def[1].GroupName | Should Be "other_project"
+        $def[1].ReportName | Should Be "other_project"
+    }
+
+    It "It should resolve projects names with wildcards" {
+        $projects = Define-DotnetTests -TestProject "$PSScriptRoot\TestSolution\Passing.NUnit.Tests?" | %{ $_.Project }
+        $projects.Length | Should Be 2
+        $projects.Contains("$PSScriptRoot\TestSolution\Passing.NUnit.Tests1") | Should Be $true
+        $projects.Contains("$PSScriptRoot\TestSolution\Passing.NUnit.Tests2") | Should Be $true
+    }
+}
+
 Describe "Define-NUnitTests" {
     
     It "It should use group name as report name if second is not specified" {

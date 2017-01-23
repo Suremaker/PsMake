@@ -1,5 +1,55 @@
 <#
 .SYNOPSIS 
+Defines dotnet test group.
+
+.DESCRIPTION
+Defines dotnet test group.
+It allows to specify one or more TestProject paths. The TestProject will be used later for defining Group and Report name(s).
+
+A defined tests could be later executed with Run-Tests function.
+
+.EXAMPLE
+PS> Define-DotnetTests -TestProject "MyProject.UnitTests"
+#>
+function Define-DotnetTests
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true, Position=1)]
+        # Test project path, where path supports * and ? wildcards.
+        # It is possible to specify multiple paths.
+        [ValidateNotNullOrEmpty()]
+        [Alias('ta')]
+        [string[]]$TestProject,
+
+        [Parameter()]
+        # Additional parameters. By default it is: @()
+        [ValidateNotNull()]
+        [string[]]$AdditionalParameters = @()
+    )
+
+    . $PSScriptRoot\internals.ps1
+
+    [string[]](Resolve-TestAssemblies $TestProject) | %{
+        $name = (Split-Path $_ -leaf)
+        
+        Create-Object @{
+            Package=$null;
+            PackageVersion=$null;
+            GroupName=$name;
+            ReportName=$name;
+            Project=$_;
+            Runner='dotnet.exe';
+            AdditionalParameters=$AdditionalParameters;
+            GetRunnerArgs={
+                param([PSObject]$Definition, [string]$ReportDirectory)
+                return @("test", $Definition.Project) + $Definition.AdditionalParameters + @("--no-build", "--configuration", "Release")
+            };}
+    }
+}
+
+<#
+.SYNOPSIS 
 Defines NUnit 2.x test group.
 
 .DESCRIPTION

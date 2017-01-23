@@ -1,6 +1,10 @@
 PsMake Testing Module
 ========================================
 
+Version 1.3.0.0
+----------------------------------------
+(New) Define-DotnetTests: definition for net core tests
+
 Version 1.2.1.0
 ----------------------------------------
 (Fix) Define-*Tests: fixed passing additional parameters to the runner
