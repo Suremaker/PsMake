@@ -543,15 +543,19 @@ function Generate-CoverageSummary
         [PSObject]$TestResult,
 
         [Parameter()]
-        # ReportGenerator version. By default it is: 1.9.1.0
+        # ReportGenerator version. By default it is: 2.5.3.0
         [ValidateNotNullOrEmpty()]
         [ValidatePattern("^[0-9]+(\.[0-9]+){0,3}$")]
-        [string]$ReportGeneratorVersion="1.9.1.0"
+        [string]$ReportGeneratorVersion="2.5.3.0"
     )
 
     Write-ShortStatus "Preparing ReportGenerator"
     $reportGenPath = Fetch-Package "ReportGenerator" $ReportGeneratorVersion
-    $ReportGeneratorPath="$reportGenPath\ReportGenerator.exe"
+    $ReportGeneratorPath="$reportGenPath\tools\ReportGenerator.exe"
+    if ($ReportGeneratorVersion.StartsWith("1."))
+    {
+        $ReportGeneratorPath="$reportGenPath\ReportGenerator.exe"
+    }
     
     if ($TestResult -ne $null)
     {
@@ -561,7 +565,7 @@ function Generate-CoverageSummary
 
     Write-ShortStatus "Generating coverage reports"
     $reports = $CoverageReport -join ';'
-    call "$ReportGeneratorPath" "-reporttypes:html,xmlsummary" "-verbosity:error" "-reports:$reports" "-targetdir:$ReportDirectory\summary"
+    call "$ReportGeneratorPath" "-reporttypes:html;xmlsummary" "-verbosity:error" "-reports:$reports" "-targetdir:$ReportDirectory\summary"
     Write-Output "$ReportDirectory\summary\Summary.xml"
 }
 

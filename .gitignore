@@ -12,6 +12,7 @@ obj
 packages
 TestResults
 reports
+reports1.x
 psmake.mod.update-version-info.Tests/proj/
 psmake.mod.update-version-info.Tests/file.txt
 psmake.mod.update-version-info.Tests/proj2

@@ -581,6 +581,19 @@ Describe "Generate-CoverageSummary" {
         Test-Path 'reports\summary\summary.xml' | Should Be $true
         Test-Path 'reports\summary\index.htm' | Should Be $true
     }
+
+    It "It should generate coverage summary from coverage reports with ReportGenerator 1.x" {
+        $tests = @()
+        $tests += Define-NUnitTests -GroupName 'rt13_1' -TestAssembly $PassingNUnit1
+        $tests += Define-MbUnitTests -GroupName 'rt13_2' -TestAssembly $PassingMbUnit2
+        $tests += Define-MsTests -GroupName 'rt13_3' -TestAssembly $PassingMsTest1
+        $tests += Define-XUnitTests -GroupName 'rt13_4' -TestAssembly $PassingXUnit1
+        $tests += Define-NUnit3Tests -GroupName 'rt13_5' -TestAssembly $PassingNUnit32
+        $tests | Run-Tests -Cover -CodeFilter "+[Domain*]* -[*Tests*]*" -TestFilter "*Tests*.dll" -ReportDirectory "reports1.x" | Generate-CoverageSummary -ReportGeneratorVersion "1.9.1"
+        $? | Should Be $true
+        Test-Path 'reports1.x\summary\summary.xml' | Should Be $true
+        Test-Path 'reports1.x\summary\index.htm' | Should Be $true
+    }
 }
 
 Describe "Check-AcceptableCoverage" {
