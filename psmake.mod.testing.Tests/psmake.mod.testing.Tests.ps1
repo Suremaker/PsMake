@@ -609,6 +609,17 @@ Describe "Check-AcceptableCoverage" {
         $? | Should Be $true
     }
 
+    It "It should allow to verify test coverage from ReportGenerator 1.x" {
+        $tests = @()
+        $tests += Define-NUnitTests -GroupName 'rt14_1' -TestAssembly $PassingNUnit1
+        $tests += Define-MbUnitTests -GroupName 'rt14_2' -TestAssembly $PassingMbUnit2
+        $tests += Define-MsTests -GroupName 'rt14_3' -TestAssembly $PassingMsTest1
+        $tests += Define-XUnitTests -GroupName 'rt14_4' -TestAssembly $PassingXUnit1
+        $tests += Define-NUnit3Tests -GroupName 'rt14_5' -TestAssembly $PassingNUnit32
+        $tests | Run-Tests -Cover -CodeFilter "+[Domain*]* -[*Tests*]*" -TestFilter "*Tests*.dll" -ReportDirectory "reports1.x" | Generate-CoverageSummary  -ReportGeneratorVersion "1.9.1" | Check-AcceptableCoverage -AcceptableCoverage 80
+        $? | Should Be $true
+    }
+
     It "It should throw if test coverage does not meet acceptable level" {
         try
         {

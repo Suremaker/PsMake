@@ -610,7 +610,11 @@ function Check-AcceptableCoverage
     Write-ShortStatus "Validating code coverage being at least $AcceptableCoverage%"
 
     [xml]$coverage = Get-Content $SummaryReport
-    $actualCoverage = [double]($coverage.CoverageReport.Summary.Coverage -replace '%','')
+
+    $coverageEntry = $coverage.CoverageReport.Summary.Linecoverage
+    if ($coverageEntry -eq $null) { $coverageEntry = $coverage.CoverageReport.Summary.Coverage }
+
+    $actualCoverage = [double]($coverageEntry -replace '%','')
     Write-Host "Coverage is $actualCoverage%"
     if($actualCoverage -lt $AcceptableCoverage) {
         throw "Coverage $($actualCoverage)% is below threshold $($AcceptableCoverage)%"

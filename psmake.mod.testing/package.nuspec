@@ -15,6 +15,7 @@
     <description>A testing module for PsMake, allowing to execute nunit/nunit3/mbunit/mstest/xunit/dotnet tests with optional coverage check</description>
     <releaseNotes>Functions:
 (Change) Generate-CoverageSummary: added support for ReportGenerator 2.x series and set 2.5.3 version as default one
+(Change) Check-AcceptableCoverage: added support for ReportGenerator 2.x series xml report format
 </releaseNotes>
   </metadata>
   <files>
