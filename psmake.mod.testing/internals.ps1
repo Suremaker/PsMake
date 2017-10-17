@@ -8,7 +8,7 @@ function Prepare-ReportDirectory($ReportDirectory, $erase)
 	mkdir $ReportDirectory -ErrorAction SilentlyContinue | Out-Null
 }
 
-function Run-OpenCover($OpenCoverVersion, $Runner, $RunnerArgs, $CodeFilter, $TestFilter, $Output)
+function Run-OpenCover($OpenCoverVersion, $Runner, $RunnerArgs, $CodeFilter, $TestFilter, $Output, $Profiler)
 {
 	function Find-OpenCoverExe([string[]]$paths){
 		foreach($path in $paths){
@@ -22,7 +22,7 @@ function Run-OpenCover($OpenCoverVersion, $Runner, $RunnerArgs, $CodeFilter, $Te
 	$openCoverConsole = Find-OpenCoverExe "$openCoverPath\tools\OpenCover.Console.exe", "$openCoverPath\OpenCover.Console.exe"
 
 	Write-ShortStatus "Running tests with OpenCover"
-	call "$openCoverConsole" "-log:Error" "-showunvisited" "-register:user" "-target:$Runner"  "-filter:$CodeFilter" "-output:$Output" "-returntargetcode" "-coverbytest:$TestFilter" "-targetargs:$RunnerArgs"
+	call "$openCoverConsole" "-log:Error" "-showunvisited" "-register:$Profiler" "-target:$Runner"  "-filter:$CodeFilter" "-output:$Output" "-returntargetcode" "-coverbytest:$TestFilter" "-targetargs:$RunnerArgs"
 }
 
 function Resolve-TestAssemblies

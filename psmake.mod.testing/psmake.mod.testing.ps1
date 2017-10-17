@@ -448,7 +448,13 @@ function Run-Tests
         # OpenCover version. By default it is: 4.6.519
         [ValidateNotNullOrEmpty()]
         [ValidatePattern("^[0-9]+(\.[0-9]+){0,3}$")]
-        [string]$OpenCoverVersion="4.6.519"
+        [string]$OpenCoverVersion="4.6.519",
+
+        [Parameter()]
+        # Code coverage profiler. 
+        # use "Path32 " or "Path64" to let opencover select the profiler for you. 
+        [ValidateNotNullOrEmpty()]
+        [string]$Profiler = "user"
     )
     begin
     {
@@ -477,7 +483,7 @@ function Run-Tests
         else
         {    
             $CoverageReport = "$ReportDirectory\$($_.ReportName)_coverage.xml"
-            Run-OpenCover -OpenCoverVersion $OpenCoverVersion -Runner $runner -RunnerArgs $runnerArgs -CodeFilter $CodeFilter -TestFilter $TestFilter -Output $CoverageReport
+            Run-OpenCover -OpenCoverVersion $OpenCoverVersion -Runner $runner -RunnerArgs $runnerArgs -CodeFilter $CodeFilter -TestFilter $TestFilter -Output $CoverageReport -Profiler $Profiler
 
             $coverageReports += $CoverageReport
         }
