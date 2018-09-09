@@ -177,7 +177,7 @@ function private:Build-Context($makefile)
     return $object
 }
 
-function private:Execute-Steps([array]$makefile)
+function private:Execute-Steps([array]$makefile, $location)
 {
     function Should-RunStep($step)
     {
@@ -198,6 +198,7 @@ function private:Execute-Steps([array]$makefile)
     for ($i = 0; $i -lt $steps.Length; $i++)
     {
         # todo: rethink
+        Set-Location $location
         Write-Header -style "*" -header "$($i+1)/$($steps.Length): $($steps[$i].Name)..."
         $sw = [Diagnostics.Stopwatch]::StartNew()
         & ($steps[$i].Body)
@@ -265,6 +266,7 @@ $overall_sw = [Diagnostics.Stopwatch]::StartNew()
 try
 {
     $ErrorActionPreference = 'Stop'
+    $private:location = Get-Location
     if ($AnsiConsole) {. $PSScriptRoot\ext\psmake.ansi.ps1}
     . $PSScriptRoot\ext\psmake.core.ps1
 
@@ -277,7 +279,7 @@ try
         Restore-Packages $makefile
         $Modules = (Load-Modules Get-Version $makefile)
         $Tools = (Load-Tools $makefile)
-        Execute-Steps $private:makeFile
+        Execute-Steps $makeFile $location
 
         Write-Host -ForegroundColor 'Green' "Make finished :)"
     }
