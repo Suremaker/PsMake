@@ -95,9 +95,8 @@ function private:Load-MakeFile()
 
 function private:Build-Context($makefile)
 {
-    $defaults = $makefile | Where-Object {$_.Type -eq "defaults"} | Select-Object -Property Values -first 1;
-    if (!$defaults) {$defaults = @{}
-    }
+    $defaults = $makefile | Where-Object {$_.Type -eq "defaults"} |%{$_.Values} | Select-Object -First 1;
+    if (!$defaults) {$defaults = @{}}
 
     function Add-PropertyValue($object, $name, $value)
     {
@@ -116,7 +115,7 @@ function private:Build-Context($makefile)
     function Locate-NuGetExe()
     {
         if ($NuGetExe -and (Test-Path $NuGetExe)) { return $NuGetExe; }
-        if ($defaults.Contains("NuGetExe") -and (Test-Path $defaults["NuGetExe"])) { return $defaults["NuGetExe"]; }
+        if ($defaults.Contains("NuGetExe")) { return $defaults["NuGetExe"]; }
         if (Test-Path '.tools\NuGet.exe') { return '.tools\NuGet.exe' }
         if (Test-Path '.nuget\NuGet.exe') { return '.nuget\NuGet.exe' }
         if (Test-Path '.\NuGet.exe') { return '.\NuGet.exe' }
@@ -194,6 +193,8 @@ function private:Execute-Steps([array]$makefile)
 
     for ($i = 0; $i -lt $steps.Length; $i++) { Write-Host "$($i+1). $($steps[$i].Name)" }
 
+    $Tools.Keys | % { New-Variable -Name $_ -Value $Tools[$_] }
+
     for ($i = 0; $i -lt $steps.Length; $i++)
     {
         # todo: rethink
@@ -224,7 +225,7 @@ function private:Restore-Packages($makefile)
 
 function private:Load-Modules($coreVersion, $makefile)
 {
-    Write-ShortStatus "Loading modules..."
+    Write-Status "Loading modules..."
     function Fetch-Module ($name, $version)
     {
         $path = Fetch-Package $name $version
@@ -238,6 +239,26 @@ function private:Load-Modules($coreVersion, $makefile)
     $modules = @{ $core.Name = $core }
     $makefile | Where-Object {$_.Type -eq 'module'} | % {Fetch-Module $_.Package $_.Version} | % { $modules.Add($_.Name, $_) }
     return $modules
+}
+
+function private:Load-Tools($makefile)
+{
+    Write-Status "Loading tools..."
+    function Fetch-Tool($tool){
+        $path = Fetch-Package $tool.Package $tool.Version
+        $fileInfo =  Get-ChildItem -Path $path -Filter $tool.Path -Recurse | Select-Object -First 1;
+        if(!$fileInfo){throw "No matching tool '$($tool.Path)' has been found in '$path'"}
+        return $fileInfo.FullName;
+    }
+
+    $tools = @{}
+    $makefile | Where-Object {$_.Type -eq 'tool'} | % {
+        $path = Fetch-Tool $_
+        $tools.Add($_.Name, $path);
+        Write-ShortStatus "Loaded `$$($_.Name) = '$path'"
+    }
+
+    return $tools
 }
 
 $overall_sw = [Diagnostics.Stopwatch]::StartNew()
@@ -255,6 +276,7 @@ try
     {
         Restore-Packages $makefile
         $Modules = (Load-Modules Get-Version $makefile)
+        $Tools = (Load-Tools $makefile)
         Execute-Steps $private:makeFile
 
         Write-Host -ForegroundColor 'Green' "Make finished :)"
