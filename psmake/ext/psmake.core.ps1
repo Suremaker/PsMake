@@ -19,7 +19,7 @@ function Call-Program (
 {
     Write-Host $command $args -ForegroundColor "Gray"
     $ErrorActionPreference = "continue" #don't throw if anything is written on stderr
-    & $command $args 2>&1
+    & $command $args
     #throw if application exit code is not 0
     if ($LastExitCode -ne 0) { throw "A program execution was not successful (Exit code: $LASTEXITCODE)." }
 }
@@ -151,8 +151,7 @@ function Fetch-Package(
     }
     else
     {
-        if (!$Context.MakeDirectory) {$packageDir = 'packages'}
-        else {$packageDir = "$($Context.MakeDirectory)\packages"}
+        $packageDir = $Context.ToolsPath
     }
 
     $package = Find-Package $packageDir $name $version
@@ -163,9 +162,21 @@ function Fetch-Package(
         return $package
     }
 
-    $nuArgs = $Context.NuGetArgs
-    call $Context.NugetExe install $name -Version $version -OutputDirectory "$packageDir" -Verbosity detailed @nuArgs
+    Invoke-Nuget install $name -Version $version -OutputDirectory "$packageDir" -Verbosity detailed
     return Find-Package $packageDir $name $version
+}
+
+<#
+.SYNOPSIS
+Invokes NuGet.exe command with provided arguments as well as default ones such as ConfigFile or Source
+#>
+function Invoke-Nuget(
+    [parameter(Position = 0, ValueFromRemainingArguments = $true)]
+    # Command arguments.
+    $args)
+{
+    $nuArgs = $Context.NuGetArgs
+    call $Context.NugetExe @nuArgs @args
 }
 
 <#

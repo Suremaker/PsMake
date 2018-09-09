@@ -24,11 +24,6 @@ C:\Project> .\psmake.ps1 -GetVersion
 Returns psmake version.
 
 .EXAMPLE
-C:\Project> .\psmake.ps1 -Scaffold build-test -MakeDirectory make
-
-Generates initial psmake files in 'make' directory.
-
-.EXAMPLE
 C:\Project> .\psmake.ps1 -RunSteps @("Step 1", "Step 2")
 
 Only run "Step 1" and "Step 2", all other steps will be skipped
@@ -122,6 +117,7 @@ function private:Build-Context($makefile)
     {
         if ($NuGetExe -and (Test-Path $NuGetExe)) { return $NuGetExe; }
         if ($defaults.Contains("NuGetExe") -and (Test-Path $defaults["NuGetExe"])) { return $defaults["NuGetExe"]; }
+        if (Test-Path '.tools\NuGet.exe') { return '.tools\NuGet.exe' }
         if (Test-Path '.nuget\NuGet.exe') { return '.nuget\NuGet.exe' }
         if (Test-Path '.\NuGet.exe') { return '.\NuGet.exe' }
 
@@ -130,7 +126,7 @@ function private:Build-Context($makefile)
         return $null
     }
 
-    function Get-NuGetExe($downloadUri)
+    function Get-NuGetExe($downloadUri, $toolsPath)
     {
         $path = Locate-NuGetExe;
         if ($path)
@@ -139,9 +135,9 @@ function private:Build-Context($makefile)
             return $path;
         }
 
-        $nugetPath = ".nuget\NuGet.exe"
+        $nugetPath = "$toolsPath\NuGet.exe"
         Write-ShortStatus "Fetching NuGet.exe from $downloadUri to $nugetPath..."
-        mkdir ".nuget" -Force
+        mkdir $toolsPath -Force | Out-Null
         $ProgressPreference = 'SilentlyContinue'
         Invoke-WebRequest $downloadUri -OutFile $nugetPath
         return $nugetPath
@@ -168,10 +164,11 @@ function private:Build-Context($makefile)
         $AdditionalParams | % { $p = $_ -split ':', 2; Add-Property $object $p[0] $defaults $(if ($p.Length -eq 2) { $p[1] } else { $true })}
     }
 
+    Add-PropertyValue $object 'ToolsPath' '.tools'
     Add-Property $object 'NuGetExeDownloadUri' $defaults ("https://dist.nuget.org/win-x86-commandline/latest/nuget.exe")
     Add-Property $object 'Target' $defaults $Target
     Add-Property $object 'AnsiConsole' $defaults if($AnsiConsole.IsPresent) { $AnsiConsole} else { $null }
-    Add-PropertyValue $object 'NuGetExe' $(Get-NuGetExe $object.NuGetExeDownloadUri)
+    Add-PropertyValue $object 'NuGetExe' $(Get-NuGetExe $object.NuGetExeDownloadUri $object.ToolsPath)
     Add-Property $object 'NuGetSource' $defaults $NuGetSource
     Add-Property $object 'NuGetConfig' $defaults $NuGetConfig $(Locate-NuGetConfig)
     Add-PropertyValue $object 'NuGetArgs' $(Construct-NuGetArgs $object)
@@ -209,6 +206,40 @@ function private:Execute-Steps([array]$makefile)
     }
 }
 
+function private:Restore-Packages($makefile)
+{
+    mkdir $Context.ToolsPath -Force | Out-Null
+    [array]$packages = $makefile | Where-Object {($_.Type -eq 'module') -or ($_.Type -eq 'tool')};
+    if (!$packages) {return; }
+
+    Write-Header "Restoring dependencies..."
+    $content = @('<?xml version="1.0" encoding="utf-8"?>', '<packages>')
+    $packages | % {$content += "<package id=""$($_.Package)"" version=""$($_.Version)"" />"};
+    $content += '</packages>';
+    $packagesConfig = $Context.ToolsPath + "\packages.config";
+    Set-Content $packagesConfig -Value ($content -join "`r`n" ) -Encoding UTF8
+
+    Invoke-Nuget restore $packagesConfig -OutputDirectory $Context.ToolsPath
+}
+
+function private:Load-Modules($coreVersion, $makefile)
+{
+    Write-ShortStatus "Loading modules..."
+    function Fetch-Module ($name, $version)
+    {
+        $path = Fetch-Package $name $version
+        $file = "$path\$name.ps1"
+        if (!(Test-Path $file)) { Write-Error "Invalid module: unable to locate entry point: $file"}
+
+        return Create-Object @{Name = $name; File = $file; Version = $version}
+    }
+
+    $core = Create-Object @{Name = 'psmake.core'; File = "$PSScriptRoot\ext\psmake.core.ps1"; Version = $coreVersion}
+    $modules = @{ $core.Name = $core }
+    $makefile | Where-Object {$_.Type -eq 'module'} | % {Fetch-Module $_.Package $_.Version} | % { $modules.Add($_.Name, $_) }
+    return $modules
+}
+
 $overall_sw = [Diagnostics.Stopwatch]::StartNew()
 try
 {
@@ -222,6 +253,8 @@ try
     if ($GetVersion) { Get-Version }
     else
     {
+        Restore-Packages $makefile
+        $Modules = (Load-Modules Get-Version $makefile)
         Execute-Steps $private:makeFile
 
         Write-Host -ForegroundColor 'Green' "Make finished :)"

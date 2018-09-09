@@ -8,6 +8,11 @@ function Require-Module($package, $version)
 	Write-Output Create-Object @{ Type="module"; Package=$package; Version=$version}
 }
 
+function Require-Tool($package, $version)
+{
+	Write-Output Create-Object @{ Type="tool"; Package=$package; Version=$version}
+}
+
 function Define-Defaults([hashtable]$defaults)
 {
 	Write-Output Create-Object @{Type="defaults"; Values=$defaults;}
